@@ -1,7 +1,18 @@
-import {addPlugin, createResolver, defineNuxtModule} from '@nuxt/kit'
+import {addImportsDir, addPlugin, createResolver, defineNuxtModule} from '@nuxt/kit'
 import {argbFromHex} from "@material/material-color-utilities";
+import {defu} from 'defu'
 import {Contrast, PaletteStyle} from "./runtime/constants/contrast";
 import type {MaterialDynamicOptions} from './types'
+
+declare module '@nuxt/schema' {
+  interface PublicRuntimeConfig {
+    materialDynamic: MaterialDynamicOptions
+  }
+
+  interface NuxtOptions {
+    materialDynamic?: MaterialDynamicOptions
+  }
+}
 
 export default defineNuxtModule<MaterialDynamicOptions>({
   meta: {
@@ -25,10 +36,16 @@ export default defineNuxtModule<MaterialDynamicOptions>({
       }
     ]
   },
-  setup(_options, _nuxt) {
+  setup(inlineOptions, nuxt) {
     const resolver = createResolver(import.meta.url)
+    const options = nuxt.options.runtimeConfig.public.materialDynamic = defu(nuxt.options?.materialDynamic || {}, inlineOptions)
+
+    console.log('options', options)
 
 
+
+    // Add imports dir
+    addImportsDir(resolver.resolve('./runtime/composables'))
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver.resolve('./runtime/plugins/plugin'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/hct'))
