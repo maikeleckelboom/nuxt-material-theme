@@ -1,4 +1,5 @@
-import type {ContrastLevel, PaletteStyle} from "../runtime/constants/contrast";
+import type {PaletteStyle} from "./palette-style";
+import type {ContrastLevel} from "./contrast";
 
 export interface CorePaletteColors {
   primary?: number
@@ -6,10 +7,11 @@ export interface CorePaletteColors {
   tertiary?: number
   neutral?: number
   neutralVariant?: number
+  error?: number
 }
 
 export interface DynamicSchemeOptions extends CorePaletteColors {
-  source: number
+  seedColor?: number;
   isDark?: boolean
   isAmoled?: boolean
   style?: PaletteStyle,

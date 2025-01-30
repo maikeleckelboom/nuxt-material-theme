@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devtools: {enabled: true},
   compatibilityDate: '2025-01-30',
   materialDynamic: {
-    source: argbFromHex('#ff00f2'),
+    seedColor: argbFromHex('#ff00f2'),
     extended: [
       {
         name: 'My Awesome Color',

@@ -1,31 +1,26 @@
 import {argbFromLstar, Contrast, lstarFromArgb} from "@material/material-color-utilities";
-import {ContrastLevel} from "../constants/contrast";
-
-function getInitialBounds(baseTone: number, direction: 'darker' | 'lighter') {
-  return direction === 'darker'
-    ? {low: 0, high: baseTone}
-    : {low: baseTone, high: 100};
-}
-
-function updateBounds(direction: 'darker' | 'lighter', mid: number, ratio: number) {
-  if (ratio > 1) {
-    return direction === 'darker'
-      ? {low: 0, high: mid - 1}
-      : {low: mid + 1, high: 100};
-  } else {
-    return {low: mid + 1, high: mid - 1};
-  }
-}
+import {CONTRAST_THRESHOLD} from "../../types/contrast";
 
 function findMaxContrastVariant(baseTone: number, direction: 'darker' | 'lighter'): number {
-  let {low, high} = getInitialBounds(baseTone, direction);
+  let low = direction === 'darker' ? 0 : baseTone;
+  let high = direction === 'darker' ? baseTone : 100;
   let bestTone = baseTone;
+
   while (low <= high) {
     const mid = Math.round((low + high) / 2);
     const ratio = Contrast.ratioOfTones(baseTone, mid);
+
     if (ratio > 1) bestTone = mid;
-    ({low, high} = updateBounds(direction, mid, ratio));
+
+    if (ratio > 1) {
+      high = direction === 'darker' ? mid - 1 : high;
+      low = direction === 'lighter' ? mid + 1 : low;
+    } else {
+      low = mid + 1;
+      high = mid - 1;
+    }
   }
+
   return bestTone;
 }
 
@@ -48,6 +43,12 @@ export function getBestContrastColor(argb: number): number {
   return selectOptimalContrast(darkContrast, lightContrast, darkestPossible, lightestPossible);
 }
 
+export function calculateContrastRatio(color1: number, color2: number): number {
+  const tone1 = lstarFromArgb(color1);
+  const tone2 = lstarFromArgb(color2);
+  return Contrast.ratioOfTones(tone1, tone2);
+}
+
 export function isLightTone(argbColor: number) {
   const originalTone = lstarFromArgb(argbColor);
   return originalTone > 50;
@@ -58,13 +59,7 @@ export function isDarkTone(argbColor: number) {
   return originalTone <= 50;
 }
 
-export function calculateContrastRatio(color1: number, color2: number): number {
-  const tone1 = lstarFromArgb(color1);
-  const tone2 = lstarFromArgb(color2);
-  return Contrast.ratioOfTones(tone1, tone2);
-}
-
-export function hasEnoughContrast(color1: number, color2: number, threshold: number = ContrastLevel.WCAG_AA_NORMAL_TEXT): boolean {
+export function hasEnoughContrast(color1: number, color2: number, threshold: number = CONTRAST_THRESHOLD.Medium): boolean {
   return calculateContrastRatio(color1, color2) >= threshold;
 }
 
