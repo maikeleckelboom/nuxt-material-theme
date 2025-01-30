@@ -1,4 +1,4 @@
-export const ContrastThreshold = {
+export const Contrast = {
   Reduced: -1,
   Default: 0,
   Medium: 0.25,
@@ -13,7 +13,8 @@ export const ContrastLevel = {
   WCAG_AA_USER_INTERFACE: 3,
 } as const;
 
-export type ContrastThreshold = typeof ContrastThreshold[keyof typeof ContrastThreshold];
+export type Contrast = (typeof Contrast)[keyof typeof Contrast];
 
-export type ContrastLevel = keyof typeof ContrastLevel[keyof typeof ContrastLevel] | number;
+export type WCAGContrastLevel = keyof typeof ContrastLevel;
 
+export type ContrastLevel = (typeof ContrastLevel)[WCAGContrastLevel] | number;
