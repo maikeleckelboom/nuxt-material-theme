@@ -1,21 +1,29 @@
 import {addPlugin, createResolver, defineNuxtModule} from '@nuxt/kit'
-import type {MaterialDynamicModuleOptions} from './types'
+import {argbFromHex} from "@material/material-color-utilities";
+import {Contrast, PaletteStyle} from "./runtime/constants/contrast";
+import type {MaterialDynamicOptions} from './types'
 
-export default defineNuxtModule<MaterialDynamicModuleOptions>({
+export default defineNuxtModule<MaterialDynamicOptions>({
   meta: {
     name: 'nuxt-material-dynamic',
     configKey: 'materialDynamic',
   },
-  // Default configuration options of the Nuxt module
   defaults: {
+    isDark: false,
+    style: PaletteStyle.TonalSpot,
+    contrast: Contrast.Default,
     source: 0,
-    core: {
-      primary: 0,
-      secondary: 0,
-      tertiary: 0,
-      neutral: 0,
-      neutralVariant: 0
-    },
+    primary: 0,
+    secondary: 0,
+    tertiary: 0,
+    neutral: 0,
+    neutralVariant: 0,
+    extended: [
+      {
+        name: 'Extended Color',
+        value: argbFromHex('#00bbff'),
+      }
+    ]
   },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url)
