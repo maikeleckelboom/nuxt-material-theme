@@ -6,5 +6,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-30',
   materialDynamic: {
     source: argbFromHex('#ff00f2'),
+    extended: [
+      {
+        name: 'My Awesome Color',
+        description: 'This is a custom color from the nuxt.config.ts',
+        value: argbFromHex('#ffea00'),
+      }
+    ]
   },
 })
