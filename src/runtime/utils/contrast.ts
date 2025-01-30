@@ -1,5 +1,5 @@
 import {argbFromLstar, Contrast, lstarFromArgb} from "@material/material-color-utilities";
-import {CONTRAST_THRESHOLD} from "../../types/contrast";
+import {CONTRAST} from "../../types/contrast";
 
 function findMaxContrastVariant(baseTone: number, direction: 'darker' | 'lighter'): number {
   let low = direction === 'darker' ? 0 : baseTone;
@@ -59,7 +59,7 @@ export function isDarkTone(argbColor: number) {
   return originalTone <= 50;
 }
 
-export function hasEnoughContrast(color1: number, color2: number, threshold: number = CONTRAST_THRESHOLD.Medium): boolean {
+export function hasEnoughContrast(color1: number, color2: number, threshold: number = CONTRAST.Medium): boolean {
   return calculateContrastRatio(color1, color2) >= threshold;
 }
 
