@@ -1,30 +1,51 @@
-import {CorePalette, DynamicScheme, TonalPalette} from "@material/material-color-utilities";
-import {paletteStyleVariant} from "../../types/palette-style";
-import type {DynamicSchemeOptions} from "../../types";
+import { CorePalette, DynamicScheme, Hct } from '@material/material-color-utilities'
+import { getSchemeForPaletteStyle, paletteStyleVariant } from '../../types/palette-style'
+import type { DynamicSchemeOptions } from '../../types'
+
+function isSeedBased(options: DynamicSchemeOptions): boolean {
+  const { seedColor, primary, secondary, tertiary, neutral, neutralVariant } = options
+  return (seedColor && [primary, secondary, tertiary, neutral, neutralVariant].every(Boolean))
+}
 
 export function createDynamicScheme(options: DynamicSchemeOptions): DynamicScheme {
   const sourceColorArgb = Number(options.seedColor || options.primary)
-  const seedPalette = CorePalette.of(sourceColorArgb)
+  const _seedPalette = CorePalette.of(sourceColorArgb)
 
   const corePalette = CorePalette.fromColors({
-    primary: options.primary || seedPalette.a1.keyColor.toInt(),
-    secondary: options.secondary || seedPalette.a2.keyColor.toInt(),
-    tertiary: options.tertiary || seedPalette.a3.keyColor.toInt(),
-    neutral: options.neutral || seedPalette.n1.keyColor.toInt(),
-    neutralVariant: options.neutralVariant || seedPalette.n2.keyColor.toInt()
+    primary: Number(options.primary || options.seedColor),
+    secondary: options.secondary,
+    tertiary: options.tertiary,
+    neutral: options.neutral,
+    neutralVariant: options.neutralVariant
   })
+  const { contrast: contrastLevel = 0, isDark = false } = options
 
-  const {contrast: contrastLevel = 0, isDark = false} = options
+  if (isSeedBased(options)) {
+    const Scheme = getSchemeForPaletteStyle(options.style)
+    return new Scheme(Hct.fromInt(sourceColorArgb), isDark, contrastLevel)
+  }
 
   return new DynamicScheme({
     sourceColorArgb,
     isDark,
     contrastLevel,
     variant: paletteStyleVariant(options.style),
-    primaryPalette: options.primary ? TonalPalette.fromInt(options.primary) : corePalette.a1,
-    secondaryPalette: options.secondary ? TonalPalette.fromInt(options.secondary) : corePalette.a2,
-    tertiaryPalette: options.tertiary ? TonalPalette.fromInt(options.tertiary) : corePalette.a3,
-    neutralPalette: options.neutral ? TonalPalette.fromInt(options.neutral) : corePalette.n1,
-    neutralVariantPalette: options.neutralVariant ? TonalPalette.fromInt(options.neutralVariant) : corePalette.n2
+    primaryPalette: corePalette.a1,
+    secondaryPalette: corePalette.a2,
+    tertiaryPalette: corePalette.a3,
+    neutralPalette: corePalette.n1,
+    neutralVariantPalette: corePalette.n2
   })
+
+  // return new DynamicScheme({
+  //   sourceColorArgb,
+  //   isDark,
+  //   contrastLevel,
+  //   variant: paletteStyleVariant(options.style),
+  //   primaryPalette: options.primary ?  corePalette.a1 : seedPalette.a1,
+  //   secondaryPalette: options.secondary ? corePalette.a2 : seedPalette.a2,
+  //   tertiaryPalette: options.tertiary ? corePalette.a3 : seedPalette.a3,
+  //   neutralPalette: options.neutral ? corePalette.n1 : seedPalette.n1,
+  //   neutralVariantPalette: options.neutralVariant ? corePalette.n2 : seedPalette.n2
+  // })
 }

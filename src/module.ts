@@ -1,8 +1,8 @@
-import {addImportsDir, addPlugin, createResolver, defineNuxtModule} from '@nuxt/kit'
-import {argbFromHex} from "@material/material-color-utilities";
-import type {MaterialThemeOptions} from './types'
-import {PALETTE_STYLE} from "./types/palette-style";
-import {CONTRAST} from "./types/contrast";
+import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { argbFromHex } from '@material/material-color-utilities'
+import type { MaterialThemeOptions } from './types'
+import { PALETTE_STYLE } from './types/palette-style'
+import { CONTRAST } from './types/contrast'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
@@ -21,12 +21,17 @@ export default defineNuxtModule<MaterialThemeOptions>({
     dependencies: ['@material/material-color-utilities']
   },
   defaults: {
-    seedColor: argbFromHex('#ff00f2'),
+    seedColor: argbFromHex('#f1ff81'),
     style: PALETTE_STYLE.TonalSpot,
-    contrast: CONTRAST.Medium,
+    contrast: CONTRAST.Default,
     isDark: false,
     isAmoled: false,
-    extended: []
+    extended: [
+      {
+        name: 'Grass',
+        value: argbFromHex('#32702f')
+      }
+    ]
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -45,5 +50,5 @@ export default defineNuxtModule<MaterialThemeOptions>({
     nuxt.hook('modules:done', () => {
       console.log('My module is ready with current options: ', options)
     })
-  },
+  }
 })

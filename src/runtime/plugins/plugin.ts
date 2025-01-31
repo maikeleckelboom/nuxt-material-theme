@@ -1,14 +1,14 @@
-import {defineNuxtPlugin} from 'nuxt/app'
-import {watchIgnorable} from '@vueuse/core'
-import {createDynamicScheme} from "../utils/dynamicScheme";
-import {useDynamicScheme} from "../composables/useDynamicScheme";
+import { defineNuxtPlugin } from 'nuxt/app'
+import { watchIgnorable } from '@vueuse/core'
+import { createDynamicScheme } from '../utils/dynamicScheme'
+import { useDynamicScheme } from '../composables/useDynamicScheme'
 
 
-export default defineNuxtPlugin(({$config}) => {
-  const dynamicScheme = useDynamicScheme();
+export default defineNuxtPlugin(({ $config }) => {
+  const dynamicScheme = useDynamicScheme()
   const config = $config.public.materialDynamic
 
-  const {ignoreUpdates: ignoreColorUpdates} = watchIgnorable(() => [
+  const { ignoreUpdates: ignoreColorUpdates } = watchIgnorable(() => [
     config.isDark,
     config.contrast,
     config.style,
@@ -18,7 +18,6 @@ export default defineNuxtPlugin(({$config}) => {
     config.neutral,
     config.neutralVariant
   ], () => {
-    console.log('🟢 KeyColorUpdates')
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       isDark: config.isDark,
@@ -30,26 +29,28 @@ export default defineNuxtPlugin(({$config}) => {
       neutral: config.neutral,
       neutralVariant: config.neutralVariant
     })
+    console.log('🔴 Updated by core config')
   })
 
-  const {ignoreUpdates: ignoreSourceUpdates} = watchIgnorable(() => config.seedColor, () => {
-    console.log('🟠 SourceColorUpdates')
+  const { ignoreUpdates: ignoreSourceUpdates } = watchIgnorable(() => config.seedColor, () => {
+
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       style: config.style,
       contrast: config.contrast,
-      isDark: config.isDark
+      isDark: config.isDark,
     })
 
     ignoreColorUpdates(() => {
-      config.seedColor = dynamicScheme.value.sourceColorArgb
-      config.primary = dynamicScheme.value.primaryPalette.keyColor.toInt()
-      config.secondary = dynamicScheme.value.secondaryPalette.keyColor.toInt()
-      config.tertiary = dynamicScheme.value.tertiaryPalette.keyColor.toInt()
-      config.neutral = dynamicScheme.value.neutralPalette.keyColor.toInt()
-      config.neutralVariant = dynamicScheme.value.neutralVariantPalette.keyColor.toInt()
+      config.primary = dynamicScheme.value.primaryPaletteKeyColor
+      config.secondary = dynamicScheme.value.secondaryPaletteKeyColor
+      config.tertiary = dynamicScheme.value.tertiaryPaletteKeyColor
+      config.neutral = dynamicScheme.value.neutralPaletteKeyColor
+      config.neutralVariant = dynamicScheme.value.neutralVariantPaletteKeyColor
     })
-  }, {immediate: true})
+
+    console.log('🔵 Updated by seed color')
+  }, { immediate: true })
 
   return {
     provide: {

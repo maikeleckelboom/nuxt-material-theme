@@ -16,4 +16,8 @@ export default createConfigForNuxt({
     ],
   },
 })
-  .append(eslintConfigPrettier)
+  .append(eslintConfigPrettier, {
+    rules: {
+      'vue/first-attribute-linebreak': 'off',
+    },
+  })
