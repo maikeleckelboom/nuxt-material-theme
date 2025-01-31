@@ -29,7 +29,6 @@ export default defineNuxtPlugin(({ $config }) => {
       neutral: config.neutral,
       neutralVariant: config.neutralVariant
     })
-    console.log('🔴 Updated by core config')
   })
 
   const { ignoreUpdates: ignoreSourceUpdates } = watchIgnorable(() => config.seedColor, () => {
@@ -38,7 +37,7 @@ export default defineNuxtPlugin(({ $config }) => {
       seedColor: config.seedColor,
       style: config.style,
       contrast: config.contrast,
-      isDark: config.isDark,
+      isDark: config.isDark
     })
 
     ignoreColorUpdates(() => {
@@ -49,7 +48,6 @@ export default defineNuxtPlugin(({ $config }) => {
       config.neutralVariant = dynamicScheme.value.neutralVariantPaletteKeyColor
     })
 
-    console.log('🔵 Updated by seed color')
   }, { immediate: true })
 
   return {
