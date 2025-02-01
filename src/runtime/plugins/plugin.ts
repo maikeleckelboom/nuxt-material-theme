@@ -11,35 +11,22 @@ export default defineNuxtPlugin(({ $config }) => {
   const { ignoreUpdates } = watchIgnorable(() => [
     config.primary,
     config.isDark,
-    config.contrast,
+    config.contrastLevel,
     config.style,
     config.secondary,
     config.tertiary,
     config.neutral,
     config.neutralVariant
   ], () => {
-    console.log('theme update')
-    dynamicScheme.value = createDynamicScheme({
-      seedColor: config.seedColor,
-      isDark: config.isDark,
-      contrast: config.contrast,
-      style: config.style,
-      primary: config.primary,
-      secondary: config.secondary,
-      tertiary: config.tertiary,
-      neutral: config.neutral,
-      neutralVariant: config.neutralVariant
-    })
+    dynamicScheme.value = createDynamicScheme(config)
   }, { immediate: true })
 
   watch(() => config.seedColor, () => {
-    console.log('seed color update')
-
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       isDark: config.isDark,
       style: config.style,
-      contrast: config.contrast
+      contrastLevel: config.contrastLevel
     })
 
     ignoreUpdates(() => {

@@ -1,48 +1,50 @@
 import { CorePalette, DynamicScheme, Hct, TonalPalette } from '@material/material-color-utilities'
-import { paletteStyleScheme, paletteStyleVariant } from '../../types/palette-style'
 import type { DynamicSchemeOptions } from '../../types/module'
+import { type PaletteStyleScheme, paletteStyleScheme, paletteStyleVariant } from '../../types/palette-style'
 
 /**
- * Check if options are seed-based by verifying the presence of seedColor or primary,
- * and ensuring that secondary, tertiary, neutral, and neutralVariant are all missing.
+ * Determines if options are using a seed-based approach by checking for a source color
+ * and ensuring no other specific colors are provided.
  */
-function isSeedBased(options: DynamicSchemeOptions): boolean {
-  const hasSource = !!options.seedColor || !!options.primary
-  const withoutColors = !options.secondary && !options.tertiary && !options.neutral && !options.neutralVariant
-  return (hasSource && withoutColors)
+function hasSeedSource(options: DynamicSchemeOptions): boolean {
+  const hasColorSource = !!options.seedColor || !!options.primary
+  return hasColorSource && !Object.values({
+    secondary: options.secondary,
+    tertiary: options.tertiary,
+    neutral: options.neutral,
+    neutralVariant: options.neutralVariant
+  }).some(Boolean)
 }
 
 /**
- * Create a tonal palette from the provided color, or fallback to the provided palette.
+ * Creates a tonal palette from the given color or uses the fallback if no color is provided.
  */
-function tonalPaletteFromColor(color: number | undefined, fallbackPalette: TonalPalette): TonalPalette {
-  return color ? TonalPalette.fromInt(color) : fallbackPalette
+function generateTonalPalette(color: number | undefined, fallback: TonalPalette): TonalPalette {
+  return color ? TonalPalette.fromInt(color) : fallback
 }
 
 /**
- * Create a dynamic scheme based on the provided options.
+ * Generates a dynamic color scheme based on the provided configuration options.
  */
-export function createDynamicScheme(options: DynamicSchemeOptions): DynamicScheme {
-  const { contrast: contrastLevel = 0, isDark = false } = options
+export function createDynamicScheme(options: DynamicSchemeOptions): Readonly<DynamicScheme> {
+  const { contrastLevel = 0, isDark = false } = options
+  const baseColorArgb = Number(options.seedColor || options.primary)
+  const defaultPalettes = CorePalette.of(baseColorArgb)
 
-  const sourceColorArgb = Number(options.seedColor || options.primary)
-
-  const seedPalette = CorePalette.of(sourceColorArgb)
-
-  if (isSeedBased(options)) {
-    const Scheme = paletteStyleScheme(options.style)
-    return new Scheme(Hct.fromInt(sourceColorArgb), isDark, contrastLevel)
+  if (hasSeedSource(options)) {
+    const SchemeConstructor: PaletteStyleScheme = paletteStyleScheme(options.style)
+    return Object.freeze(new SchemeConstructor(Hct.fromInt(baseColorArgb), isDark, contrastLevel))
   }
 
-  return new DynamicScheme({
-    sourceColorArgb,
+  return Object.freeze(new DynamicScheme({
+    sourceColorArgb: baseColorArgb,
     isDark,
-    contrastLevel,
+    contrastLevel: contrastLevel,
     variant: paletteStyleVariant(options.style),
-    primaryPalette: tonalPaletteFromColor(options.primary, seedPalette.a1),
-    secondaryPalette: tonalPaletteFromColor(options.secondary, seedPalette.a2),
-    tertiaryPalette: tonalPaletteFromColor(options.tertiary, seedPalette.a3),
-    neutralPalette: tonalPaletteFromColor(options.neutral, seedPalette.n1),
-    neutralVariantPalette: tonalPaletteFromColor(options.neutralVariant, seedPalette.n2)
-  })
+    primaryPalette: generateTonalPalette(options.primary, defaultPalettes.a1),
+    secondaryPalette: generateTonalPalette(options.secondary, defaultPalettes.a2),
+    tertiaryPalette: generateTonalPalette(options.tertiary, defaultPalettes.a3),
+    neutralPalette: generateTonalPalette(options.neutral, defaultPalettes.n1),
+    neutralVariantPalette: generateTonalPalette(options.neutralVariant, defaultPalettes.n2)
+  }))
 }

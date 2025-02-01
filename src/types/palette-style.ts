@@ -29,6 +29,14 @@ export function paletteStyleVariant(style?: PaletteStyle, fallback = PALETTE_STY
   return ordinal === -1 ? 0 : ordinal
 }
 
+export function variantPaletteStyle(variant: number): PaletteStyle {
+  const style = Object.values(PALETTE_STYLE)[variant]
+  if (!style) {
+    throw new Error(`Invalid palette style variant: ${variant}`)
+  }
+  return style
+}
+
 const PaletteStyleToScheme = {
   [PALETTE_STYLE.Monochrome]: SchemeMonochrome,
   [PALETTE_STYLE.Neutral]: SchemeNeutral,
@@ -41,9 +49,9 @@ const PaletteStyleToScheme = {
   [PALETTE_STYLE.FruitSalad]: SchemeFruitSalad
 } as const
 
-export type PaletteScheme = typeof PaletteStyleToScheme[keyof typeof PaletteStyleToScheme];
+export type PaletteStyleScheme = typeof PaletteStyleToScheme[keyof typeof PaletteStyleToScheme];
 
-export function paletteStyleScheme(style?: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteScheme {
+export function paletteStyleScheme(style?: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteStyleScheme {
   const scheme = PaletteStyleToScheme[style || fallback]
   if (!scheme) {
     throw new Error(`Invalid palette style: ${style}`)

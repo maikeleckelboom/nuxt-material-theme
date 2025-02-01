@@ -5,17 +5,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
-    primary: argbFromHex('#009dff'),
-    tertiary: argbFromHex('#ff00a6'),
-    isDark: true,
-    contrast: 0.2,
-    style: 'Content',
-    extended: [
+    seedColor: argbFromHex('#009dff'),
+    extendedColors: [
       {
-        name: 'Sponge',
-        description: 'The color of Sponge Bob',
-        value: argbFromHex('#ffea00')
+        name: 'Alien Purplish',
+        value: argbFromHex('#ff00ff'),
+        blend: true
       }
-    ]
+    ],
   }
 })
