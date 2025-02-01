@@ -3,12 +3,11 @@ import { watchIgnorable } from '@vueuse/core'
 import { createDynamicScheme } from '../utils/dynamicScheme'
 import { useDynamicScheme } from '../composables/useDynamicScheme'
 
-
 export default defineNuxtPlugin(({ $config }) => {
   const dynamicScheme = useDynamicScheme()
-  const config = $config.public.materialDynamic
+  const config = $config.public.materialTheme
 
-  const { ignoreUpdates: ignoreColorUpdates } = watchIgnorable(() => [
+  const { ignoreUpdates } = watchIgnorable(() => [
     config.isDark,
     config.contrast,
     config.style,
@@ -18,8 +17,8 @@ export default defineNuxtPlugin(({ $config }) => {
     config.neutral,
     config.neutralVariant
   ], () => {
+    console.log('Trigger by color updates')
     dynamicScheme.value = createDynamicScheme({
-      seedColor: config.seedColor,
       isDark: config.isDark,
       contrast: config.contrast,
       style: config.style,
@@ -31,8 +30,8 @@ export default defineNuxtPlugin(({ $config }) => {
     })
   })
 
-  const { ignoreUpdates: ignoreSourceUpdates } = watchIgnorable(() => config.seedColor, () => {
-
+  watchIgnorable(() => config.seedColor, () => {
+    console.log('Trigger by seed color update')
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       style: config.style,
@@ -40,22 +39,12 @@ export default defineNuxtPlugin(({ $config }) => {
       isDark: config.isDark
     })
 
-    ignoreColorUpdates(() => {
+    ignoreUpdates(() => {
       config.primary = dynamicScheme.value.primaryPaletteKeyColor
       config.secondary = dynamicScheme.value.secondaryPaletteKeyColor
       config.tertiary = dynamicScheme.value.tertiaryPaletteKeyColor
       config.neutral = dynamicScheme.value.neutralPaletteKeyColor
       config.neutralVariant = dynamicScheme.value.neutralVariantPaletteKeyColor
     })
-
   }, { immediate: true })
-
-  return {
-    provide: {
-      dynamicScheme,
-      materialConfig: config,
-      ignoreSourceUpdates,
-      ignoreColorUpdates
-    }
-  }
 })

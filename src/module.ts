@@ -1,29 +1,30 @@
 import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { argbFromHex } from '@material/material-color-utilities'
-import type { MaterialThemeOptions } from './types'
 import { PALETTE_STYLE } from './types/palette-style'
-import { CONTRAST } from './types/contrast'
+import { CONTRAST_LEVEL } from './types/contrastLevel'
+import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/module'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
-    materialDynamic?: MaterialThemeOptions
+    materialTheme: MaterialThemeOptions
   }
 
   interface PublicRuntimeConfig {
-    materialDynamic: MaterialThemeOptions
+    materialTheme: MaterialThemeRuntimeOptions
   }
 }
 
 export default defineNuxtModule<MaterialThemeOptions>({
   meta: {
     name: 'nuxt-material-dynamic',
-    configKey: 'materialDynamic',
+    configKey: 'materialTheme',
     dependencies: ['@material/material-color-utilities']
   },
   defaults: {
-    seedColor: argbFromHex('#f1ff81'),
+    // Use primary to avoid overwriting user-provided primary with seedColor
+    primary: argbFromHex('#f1ff81'),
     style: PALETTE_STYLE.TonalSpot,
-    contrast: CONTRAST.Default,
+    contrast: CONTRAST_LEVEL.Default,
     isDark: false,
     isAmoled: false,
     extended: [
@@ -35,9 +36,8 @@ export default defineNuxtModule<MaterialThemeOptions>({
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
-    nuxt.options.runtimeConfig.public.materialDynamic = options
 
-    // Auto-import directories
+    // Imports
     addImportsDir(resolver.resolve('./runtime/composables'))
     addImportsDir(resolver.resolve('./runtime/utils'))
 
@@ -47,8 +47,9 @@ export default defineNuxtModule<MaterialThemeOptions>({
     addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicScheme'))
     addPlugin(resolver.resolve('./runtime/plugins/plugin'))
 
+    // Runtime config
     nuxt.hook('modules:done', () => {
-      console.log('My module is ready with current options: ', options)
+      nuxt.options.runtimeConfig.public.materialTheme = <MaterialThemeRuntimeOptions>options
     })
   }
 })

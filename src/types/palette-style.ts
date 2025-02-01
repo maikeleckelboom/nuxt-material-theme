@@ -43,6 +43,10 @@ const PALETTE_STYLE_SCHEMES = {
 
 export type PaletteScheme = typeof PALETTE_STYLE_SCHEMES[keyof typeof PALETTE_STYLE_SCHEMES];
 
-export function getSchemeForPaletteStyle(style: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteScheme {
-  return PALETTE_STYLE_SCHEMES[style || fallback];
+export function getSchemeForPaletteStyle(style?: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteScheme {
+  const scheme = PALETTE_STYLE_SCHEMES[style || fallback];
+  if (!scheme) {
+    throw new Error(`Invalid palette style: ${style}`);
+  }
+  return scheme;
 }
