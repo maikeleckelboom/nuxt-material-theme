@@ -1,5 +1,6 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import { watchIgnorable } from '@vueuse/core'
+import { watch } from 'vue'
 import { createDynamicScheme } from '../utils/dynamicScheme'
 import { useDynamicScheme } from '../composables/useDynamicScheme'
 
@@ -17,12 +18,12 @@ export default defineNuxtPlugin(({ $config }) => {
     config.neutral,
     config.neutralVariant
   ], () => {
-    console.log('Trigger by color updates')
+    console.log('theme update')
     dynamicScheme.value = createDynamicScheme({
+      primary: config.primary,
       isDark: config.isDark,
       contrast: config.contrast,
       style: config.style,
-      primary: config.primary,
       secondary: config.secondary,
       tertiary: config.tertiary,
       neutral: config.neutral,
@@ -30,8 +31,8 @@ export default defineNuxtPlugin(({ $config }) => {
     })
   })
 
-  watchIgnorable(() => config.seedColor, () => {
-    console.log('Trigger by seed color update')
+  watch(() => config.seedColor, () => {
+    console.log('seed color update')
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       style: config.style,

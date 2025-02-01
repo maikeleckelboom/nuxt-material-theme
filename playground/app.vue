@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
+import { PALETTE_STYLE } from '../src/types/palette-style'
 
 const config = useRuntimeConfig().public.materialTheme
 const dynamicScheme = useDynamicScheme()
@@ -9,20 +10,20 @@ const getRowStyles = (color: number) => ({
   color: hexFromArgb(getContrastColor(color))
 })
 
-const theme = reactive(useMaterialTheme())
+const fields = {
+  'Seed': config.seedColor,
+  'config.primary': config.primary,
+  'Secondary': config.secondary,
+  'Tertiary': config.tertiary,
+  'Neutral': config.neutral,
+  'Neutral Variant': config.neutralVariant
+}
+
+const paletteStyles = Object.values(PALETTE_STYLE)
 </script>
 
 <template>
   <div class="main-grid">
-
-    <form class="color-grid">
-      <input v-model="theme.seedColor" aria-label="Seed Color" type="color" />
-      <input v-model="theme.primary" aria-label="config.primary Color" type="color" />
-      <input v-model="theme.secondary" aria-label="Secondary Color" type="color" />
-      <input v-model="theme.tertiary" aria-label="Tertiary Color" type="color" />
-      <input v-model="theme.neutral" aria-label="Neutral Color" type="color" />
-      <input v-model="theme.neutralVariant" aria-label="Neutral Variant Color" type="color" />
-    </form>
 
     <form class="color-form">
       <input :value="hexFromArgb(config.seedColor)" aria-label="Seed Color" type="color"
@@ -39,28 +40,44 @@ const theme = reactive(useMaterialTheme())
              @input="config.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)" />
     </form>
 
+    <form>
+      <div>
+        <input v-model="config.isDark" type="checkbox" />
+        <label>Dark Mode</label>
+      </div>
+
+      <div>
+        <label>Style</label>
+        <select v-model="config.style">
+          <option v-for="style in paletteStyles" :key="style" :value="style">{{ style }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Contrast</label>
+        <input v-model="config.contrast" max="1" min="-1" step="0.1" type="range" />
+      </div>
+
+
+    </form>
+
 
     <!-- Color Table -->
     <table class="color-table">
       <tbody>
-      <tr v-for="(color, label) in {
-          'Seed': config.seedColor,
-          'config.primary': config.primary,
-          'Secondary': config.secondary,
-          'Tertiary': config.tertiary,
-          'Neutral': config.neutral,
-          'Neutral Variant': config.neutralVariant,
-        }" :key="label" :style="getRowStyles(color)">
+      <tr v-for="(color, label) in fields" :key="label" :style="getRowStyles(color)">
         <td>{{ label }}</td>
         <td>{{ color }}</td>
       </tr>
       </tbody>
     </table>
+    <pre>{{ JSON.stringify(config, null, 2) }}</pre>
+    <pre>{{ JSON.stringify(dynamicScheme, null, 2) }}</pre>
+    <pre>{{ JSON.stringify(colorsFromDynamicScheme(dynamicScheme), null, 2) }}</pre>
     <div class="flex flex-wrap">
-      <div v-for="([key, value], index) in Object.entries(colorsFromDynamicScheme(dynamicScheme))" :key="index" :style="{
-      backgroundColor: hexFromArgb(value),
-      color: hexFromArgb(getContrastColor(value))
-    }">
+      <div v-for="(value, key, index) in colorsFromDynamicScheme(dynamicScheme, {format:'argb'})" :key="index"
+           :style="{backgroundColor: hexFromArgb(value), color: hexFromArgb(getContrastColor(value)) }"
+      >
         <p>{{ key }}</p>
       </div>
     </div>

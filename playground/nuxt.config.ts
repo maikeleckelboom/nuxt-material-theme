@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     extended: [
       {
         name: 'My Awesome Color',
-        description: 'This is a custom color from the nuxt.config.ts',
+        description: 'Color from the nuxt.config.ts',
         value: argbFromHex('#ffea00')
       }
     ]
