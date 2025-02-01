@@ -9,10 +9,10 @@ export default defineNuxtPlugin(({ $config }) => {
   const config = $config.public.materialTheme
 
   const { ignoreUpdates } = watchIgnorable(() => [
+    config.primary,
     config.isDark,
     config.contrast,
     config.style,
-    config.primary,
     config.secondary,
     config.tertiary,
     config.neutral,
@@ -20,24 +20,26 @@ export default defineNuxtPlugin(({ $config }) => {
   ], () => {
     console.log('theme update')
     dynamicScheme.value = createDynamicScheme({
-      primary: config.primary,
+      seedColor: config.seedColor,
       isDark: config.isDark,
       contrast: config.contrast,
       style: config.style,
+      primary: config.primary,
       secondary: config.secondary,
       tertiary: config.tertiary,
       neutral: config.neutral,
       neutralVariant: config.neutralVariant
     })
-  })
+  }, { immediate: true })
 
   watch(() => config.seedColor, () => {
     console.log('seed color update')
+
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
+      isDark: config.isDark,
       style: config.style,
-      contrast: config.contrast,
-      isDark: config.isDark
+      contrast: config.contrast
     })
 
     ignoreUpdates(() => {
@@ -47,5 +49,5 @@ export default defineNuxtPlugin(({ $config }) => {
       config.neutral = dynamicScheme.value.neutralPaletteKeyColor
       config.neutralVariant = dynamicScheme.value.neutralVariantPaletteKeyColor
     })
-  }, { immediate: true })
+  })
 })

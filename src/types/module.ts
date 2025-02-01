@@ -12,7 +12,6 @@ export interface CorePaletteColors {
 
 export interface BaseDynamicSchemeOptions extends CorePaletteColors {
   isDark?: boolean;
-  isAmoled?: boolean;
   style?: PaletteStyle;
   contrast?: ContrastLevel;
 }
@@ -38,7 +37,10 @@ export interface ExtendedColor {
 
 export type MaterialThemeOptions = DynamicSchemeOptions & {
   extended?: ExtendedColor[]
-  paletteTones?: number[]
+  /* Not implemented */
+  withAmoled?: boolean; // Whether the dark scheme is used with Amoled screen (Pure dark).
+  /* Not implemented */
+  isExtendedFidelity?: boolean; // Equivalent to "color match" in material.io
 }
 
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>

@@ -76,7 +76,7 @@ export function getColorsByHueRange(
 export function getClosestColorByTemperature(
   cache: TemperatureCache,
   targetTemp: number
-): Hct {
+): Hct | null {
   let closest: Hct | null = null
   let smallestDiff = Infinity
 

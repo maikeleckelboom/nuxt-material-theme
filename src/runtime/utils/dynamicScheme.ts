@@ -1,5 +1,5 @@
 import { CorePalette, DynamicScheme, Hct, TonalPalette } from '@material/material-color-utilities'
-import { getSchemeForPaletteStyle, paletteStyleVariant } from '../../types/palette-style'
+import { paletteStyleScheme, paletteStyleVariant } from '../../types/palette-style'
 import type { DynamicSchemeOptions } from '../../types/module'
 
 /**
@@ -13,6 +13,13 @@ function isSeedBased(options: DynamicSchemeOptions): boolean {
 }
 
 /**
+ * Create a tonal palette from the provided color, or fallback to the provided palette.
+ */
+function tonalPaletteFromColor(color: number | undefined, fallbackPalette: TonalPalette): TonalPalette {
+  return color ? TonalPalette.fromInt(color) : fallbackPalette
+}
+
+/**
  * Create a dynamic scheme based on the provided options.
  */
 export function createDynamicScheme(options: DynamicSchemeOptions): DynamicScheme {
@@ -20,22 +27,22 @@ export function createDynamicScheme(options: DynamicSchemeOptions): DynamicSchem
 
   const sourceColorArgb = Number(options.seedColor || options.primary)
 
+  const seedPalette = CorePalette.of(sourceColorArgb)
+
   if (isSeedBased(options)) {
-    const Scheme = getSchemeForPaletteStyle(options.style)
+    const Scheme = paletteStyleScheme(options.style)
     return new Scheme(Hct.fromInt(sourceColorArgb), isDark, contrastLevel)
   }
-
-  const seedPalette = CorePalette.contentOf(sourceColorArgb)
 
   return new DynamicScheme({
     sourceColorArgb,
     isDark,
     contrastLevel,
     variant: paletteStyleVariant(options.style),
-    primaryPalette: options.primary ? TonalPalette.fromInt(options.primary) : seedPalette.a1,
-    secondaryPalette: options.secondary ? TonalPalette.fromInt(options.secondary) : seedPalette.a2,
-    tertiaryPalette: options.tertiary ? TonalPalette.fromInt(options.tertiary) : seedPalette.a3,
-    neutralPalette: options.neutral ? TonalPalette.fromInt(options.neutral) : seedPalette.n1,
-    neutralVariantPalette: options.neutralVariant ? TonalPalette.fromInt(options.neutralVariant) : seedPalette.n2
+    primaryPalette: tonalPaletteFromColor(options.primary, seedPalette.a1),
+    secondaryPalette: tonalPaletteFromColor(options.secondary, seedPalette.a2),
+    tertiaryPalette: tonalPaletteFromColor(options.tertiary, seedPalette.a3),
+    neutralPalette: tonalPaletteFromColor(options.neutral, seedPalette.n1),
+    neutralVariantPalette: tonalPaletteFromColor(options.neutralVariant, seedPalette.n2)
   })
 }

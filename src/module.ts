@@ -3,6 +3,7 @@ import { argbFromHex } from '@material/material-color-utilities'
 import { PALETTE_STYLE } from './types/palette-style'
 import { CONTRAST_LEVEL } from './types/contrastLevel'
 import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/module'
+import { createDynamicScheme } from './runtime/utils/dynamicScheme'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
@@ -26,7 +27,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
     style: PALETTE_STYLE.TonalSpot,
     contrast: CONTRAST_LEVEL.Default,
     isDark: false,
-    isAmoled: false,
+    withAmoled: true,
     extended: [
       {
         name: 'Grass',
@@ -49,6 +50,14 @@ export default defineNuxtModule<MaterialThemeOptions>({
 
     // Runtime config
     nuxt.hook('modules:done', () => {
+      if (!options.seedColor) options.seedColor = options.primary
+      const scheme = createDynamicScheme(options)
+      options.primary ??= scheme.primaryPaletteKeyColor
+      options.secondary ??= scheme.secondaryPaletteKeyColor
+      options.tertiary ??= scheme.tertiaryPaletteKeyColor
+      options.neutral ??= scheme.neutralPaletteKeyColor
+      options.neutralVariant ??= scheme.neutralVariantPaletteKeyColor
+
       nuxt.options.runtimeConfig.public.materialTheme = <MaterialThemeRuntimeOptions>options
     })
   }

@@ -8,18 +8,18 @@ import {
   SchemeRainbow,
   SchemeTonalSpot,
   SchemeVibrant
-} from "@material/material-color-utilities";
+} from '@material/material-color-utilities'
 
 export const PALETTE_STYLE = {
-  Monochrome: 'monochrome',
-  Neutral: 'neutral',
-  TonalSpot: 'tonalSpot',
-  Vibrant: 'vibrant',
-  Expressive: 'expressive',
-  Fidelity: 'fidelity',
-  Content: 'content',
-  Rainbow: 'rainbow',
-  FruitSalad: 'fruitSalad'
+  Monochrome: 'Monochrome',
+  Neutral: 'Neutral',
+  TonalSpot: 'TonalSpot',
+  Vibrant: 'Vibrant',
+  Expressive: 'Expressive',
+  Fidelity: 'Fidelity',
+  Content: 'Content',
+  Rainbow: 'Rainbow',
+  FruitSalad: 'FruitSalad'
 } as const
 
 export type PaletteStyle = typeof PALETTE_STYLE[keyof typeof PALETTE_STYLE];
@@ -29,7 +29,7 @@ export function paletteStyleVariant(style?: PaletteStyle, fallback = PALETTE_STY
   return ordinal === -1 ? 0 : ordinal
 }
 
-const PALETTE_STYLE_SCHEMES = {
+const PaletteStyleToScheme = {
   [PALETTE_STYLE.Monochrome]: SchemeMonochrome,
   [PALETTE_STYLE.Neutral]: SchemeNeutral,
   [PALETTE_STYLE.TonalSpot]: SchemeTonalSpot,
@@ -41,12 +41,12 @@ const PALETTE_STYLE_SCHEMES = {
   [PALETTE_STYLE.FruitSalad]: SchemeFruitSalad
 } as const
 
-export type PaletteScheme = typeof PALETTE_STYLE_SCHEMES[keyof typeof PALETTE_STYLE_SCHEMES];
+export type PaletteScheme = typeof PaletteStyleToScheme[keyof typeof PaletteStyleToScheme];
 
-export function getSchemeForPaletteStyle(style?: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteScheme {
-  const scheme = PALETTE_STYLE_SCHEMES[style || fallback];
+export function paletteStyleScheme(style?: PaletteStyle, fallback: PaletteStyle = PALETTE_STYLE.TonalSpot): PaletteScheme {
+  const scheme = PaletteStyleToScheme[style || fallback]
   if (!scheme) {
-    throw new Error(`Invalid palette style: ${style}`);
+    throw new Error(`Invalid palette style: ${style}`)
   }
-  return scheme;
+  return scheme
 }
