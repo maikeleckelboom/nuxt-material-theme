@@ -6,19 +6,22 @@ export const CASE_TRANSFORMER_REGISTRY = {
   dot: dotCase
 } as const
 
-export type CaseFormat = keyof TransformerRegistry;
+export type CaseFormat = keyof TransformerRegistry
 
-type TransformerRegistry = typeof CASE_TRANSFORMER_REGISTRY;
+type TransformerRegistry = typeof CASE_TRANSFORMER_REGISTRY
 
-type TransformerOptions<T> = T extends (input: string, options?: infer O) => string
+type TransformerOptions<T> = T extends (
+  input: string,
+  options?: infer O
+) => string
   ? O
-  : never;
+  : never
 
 type CaseOptionsMap = {
-  [K in keyof TransformerRegistry]: TransformerOptions<TransformerRegistry[K]>;
-};
+  [K in keyof TransformerRegistry]: TransformerOptions<TransformerRegistry[K]>
+}
 
-export type CaseOptions<F extends keyof TransformerRegistry> = CaseOptionsMap[F];
+export type CaseOptions<F extends keyof TransformerRegistry> = CaseOptionsMap[F]
 
 export function changeCase<F extends CaseFormat>(
   input: string,

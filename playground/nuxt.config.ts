@@ -16,6 +16,6 @@ export default defineNuxtConfig({
         value: argbFromHex('#ff00ff'),
       }
     ],
-    includeBrightnessVariants: true,
+    brightnessVariants: true,
   }
 })

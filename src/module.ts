@@ -30,18 +30,18 @@ function initializeRuntimeConfig(options: MaterialThemeOptions) {
 
 export default defineNuxtModule<MaterialThemeOptions>({
   meta: {
-    name: 'nuxt-material-dynamic',
+    name: 'nuxt-material-theme',
     configKey: 'materialTheme',
-    dependencies: ['@material/material-color-utilities']
+    dependencies: ['@material/material-color-utilities', '@vueuse/core', 'change-case']
   },
   defaults: {
+    extendedColors: [],
     style: 'TonalSpot',
     contrastLevel: 0,
     isDark: false,
     withAmoled: false,
     isExtendedFidelity: false,
-    extendedColors: [],
-    includeBrightnessVariants: false
+    brightnessVariants: false
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)

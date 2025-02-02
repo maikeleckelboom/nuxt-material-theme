@@ -1,11 +1,25 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 
-const { $ignoreSeedColorUpdates } = useNuxtApp()
-
 const theme = useRuntimeConfig().public.materialTheme
 
-const { colorScheme } = useMaterialTheme(theme)
+const { colorScheme, dynamicScheme, ignoreSeedUpdates } = useMaterialTheme(theme)
+
+useHead({
+  title: 'Material Theme Playground',
+  style: [
+    {
+      textContent: computed(
+        () => `
+        body {
+          background-color: ${hexFromArgb(colorScheme.value.background)};
+          color: ${hexFromArgb(colorScheme.value.onBackground)};
+        }
+      `
+      )
+    }
+  ]
+})
 </script>
 
 <template>
@@ -17,77 +31,65 @@ const { colorScheme } = useMaterialTheme(theme)
           :value="hexFromArgb(theme.seedColor)"
           aria-label="Seed Color"
           type="color"
-          @input="theme.seedColor = argbFromHex(
-              ($event.target as HTMLInputElement).value
-          )"
+          @input="
+            theme.seedColor = argbFromHex(($event.target as HTMLInputElement).value)
+          "
         />
         <input
           :value="hexFromArgb(theme.primary)"
           aria-label="config.primary Color"
           type="color"
-          @input="$ignoreSeedColorUpdates(()=> {
-            theme.seedColor = theme.primary = argbFromHex(
-              ($event.target as HTMLInputElement).value
-            )
-          })"
+          @input="
+            ignoreSeedUpdates(() => {
+              theme.seedColor = theme.primary = argbFromHex(
+                ($event.target as HTMLInputElement).value
+              )
+            })
+          "
         />
         <input
           :value="hexFromArgb(theme.secondary)"
           aria-label="Secondary Color"
           type="color"
           @input="
-            theme.secondary = argbFromHex(
-              ($event.target as HTMLInputElement).value
-            )
+            theme.secondary = argbFromHex(($event.target as HTMLInputElement).value)
           "
         />
         <input
           :value="hexFromArgb(theme.tertiary)"
           aria-label="Tertiary Color"
           type="color"
-          @input="
-            theme.tertiary = argbFromHex(
-              ($event.target as HTMLInputElement).value
-            )
-          "
+          @input="theme.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
           :value="hexFromArgb(theme.neutral)"
           aria-label="Neutral Color"
           type="color"
-          @input="
-            theme.neutral = argbFromHex(
-              ($event.target as HTMLInputElement).value
-            )
-          "
+          @input="theme.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
           :value="hexFromArgb(theme.neutralVariant)"
           aria-label="Neutral Variant Color"
           type="color"
           @input="
-            theme.neutralVariant = argbFromHex(
-              ($event.target as HTMLInputElement).value
-            )
+            theme.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)
           "
         />
 
-        <template v-for="(extendedColor,idx) in theme.extendedColors" :key="idx">
+        <template v-for="(extendedColor, idx) in theme.extendedColors" :key="idx">
           <input
             :value="hexFromArgb(extendedColor.value)"
             aria-label="Extended Color"
             type="color"
             @input="
-              extendedColor.value = argbFromHex(
-                ($event.target as HTMLInputElement).value
-              )
+              extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)
             "
           />
         </template>
 
         <label>
-          <span>Include Brightness Variants</span>
-          <input v-model="theme.includeBrightnessVariants" type="checkbox" />
+          <span>Brightness Variants</span>
+          <input v-model="theme.brightnessVariants" type="checkbox" />
         </label>
 
         <label>
@@ -106,13 +108,7 @@ const { colorScheme } = useMaterialTheme(theme)
 
         <label>
           <span>Contrast</span>
-          <input
-            v-model="theme.contrastLevel"
-            max="1"
-            min="-1"
-            step="0.1"
-            type="range"
-          />
+          <input v-model="theme.contrastLevel" max="1" min="-1" step="0.1" type="range" />
         </label>
 
         <label>
@@ -125,9 +121,7 @@ const { colorScheme } = useMaterialTheme(theme)
           <input v-model="theme.withAmoled" type="checkbox" />
         </label>
       </form>
-
     </div>
-
 
     <div
       :style="{
@@ -142,7 +136,8 @@ const { colorScheme } = useMaterialTheme(theme)
         :style="{
           backgroundColor: hexFromArgb(value),
           color: hexFromArgb(getContrastColor(value))
-        }">
+        }"
+      >
         <span>{{ key }}</span>
       </div>
     </div>

@@ -41,11 +41,15 @@ export type MaterialThemeOptions = DynamicSchemeOptions & {
   withAmoled?: boolean
   isExtendedFidelity?: boolean
   extendedColors?: ExtendedColor[]
-  includeBrightnessVariants?: boolean
+  brightnessVariants?: boolean
 }
 
-export type ModifyColorSchemeOptions<T = number> = Partial<{
-  modifyColorScheme(scheme: Record<string, number>): Record<string, T>
-}>
+export type ModifyColorScheme<T = number> = (
+  scheme: Record<string, number>
+) => Record<string, T>
+
+export type ModifyColorSchemeOptions = {
+  modifyColorScheme?: ModifyColorScheme
+}
 
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>

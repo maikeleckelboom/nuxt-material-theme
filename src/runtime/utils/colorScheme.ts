@@ -5,20 +5,22 @@ import {
   DynamicScheme,
   MaterialDynamicColors
 } from '@material/material-color-utilities'
-import { type MaybeRefOrGetter, toValue } from 'vue'
-import type { ExtendedColor, ModifyColorSchemeOptions } from '../../types/module'
+import { toValue } from 'vue'
+import type { ExtendedColor, ModifyColorScheme } from '../../types/module'
 import { colorsFromDynamicScheme } from '../utils/dynamicColor'
 import { toCustomColorScheme } from '../../runtime/utils/customColorScheme'
 import { harmonize } from './blend'
 
 export function toColorScheme(
-  dynamicScheme: MaybeRefOrGetter<DynamicScheme>,
-  options?: ModifyColorSchemeOptions & {
+  dynamicScheme: DynamicScheme,
+  options?: {
     extendedColors?: ExtendedColor[]
-    brightnessVariants?: boolean,
-    isExtendedFidelity?: boolean,
-    isAmoled?: boolean,
-  }) {
+    brightnessVariants?: boolean
+    isExtendedFidelity?: boolean
+    isAmoled?: boolean
+    modifyColorScheme?: ModifyColorScheme
+  }
+) {
   const {
     extendedColors = [],
     brightnessVariants = true,
@@ -38,17 +40,21 @@ export function toColorScheme(
     Object.assign(colors, colorsFromDynamicScheme(otherScheme, true))
   }
 
-  if (options?.extendedColors) {
-    Object.assign(colors, extendedColors.reduce((acc, extendedColor) => {
-        const customColorGroup = customColor(scheme.sourceColorArgb, {
-          ...extendedColor,
-          blend: isExtendedFidelity || !!extendedColor.blend
-        })
-        const customScheme = toCustomColorScheme(customColorGroup, {
-          isDark: scheme.isDark,
-          ...options
-        })
-        return { ...acc, ...customScheme }
+  if (extendedColors.length) {
+    Object.assign(
+      colors,
+      extendedColors.reduce((acc, extendedColor) => {
+        const customColorGroup = customColor(
+          scheme.sourceColorArgb,
+          Object.assign({}, extendedColor, {
+            blend: isExtendedFidelity || !!extendedColor.blend
+          })
+        )
+        const customScheme = toCustomColorScheme(
+          customColorGroup,
+          Object.assign({ isDark: scheme.isDark }, options)
+        )
+        return Object.assign({}, acc, customScheme)
       }, {})
     )
   }
@@ -57,7 +63,9 @@ export function toColorScheme(
   if (isExtendedFidelity) {
     for (const [name, color] of Object.entries(MaterialDynamicColors)) {
       const nonBlendable = ['error', 'palette']
-      const isAllowedToBlend = nonBlendable.every((word) => !name.toLowerCase().includes(word))
+      const isAllowedToBlend = nonBlendable.every(
+        (word) => !name.toLowerCase().includes(word)
+      )
       if (color instanceof DynamicColor && isAllowedToBlend) {
         colors[name] = harmonize(color.getArgb(scheme), scheme.sourceColorArgb)
       }

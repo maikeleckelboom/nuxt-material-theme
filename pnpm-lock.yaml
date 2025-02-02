@@ -8,19 +8,19 @@ importers:
 
   .:
     dependencies:
-      '@nuxt/kit':
-        specifier: ^3.15.3
-        version: 3.15.4(magicast@0.3.5)(rollup@4.32.1)
-      '@types/eslint-config-prettier':
-        specifier: ^6.11.3
-        version: 6.11.3
-      '@vueuse/core':
-        specifier: ^12.5.0
-        version: 12.5.0(typescript@5.7.3)
-    devDependencies:
       '@material/material-color-utilities':
         specifier: ^0.3.0
         version: 0.3.0
+      '@nuxt/kit':
+        specifier: ^3.15.3
+        version: 3.15.4(magicast@0.3.5)(rollup@4.32.1)
+      '@vueuse/core':
+        specifier: ^12.5.0
+        version: 12.5.0(typescript@5.7.3)
+      change-case:
+        specifier: ^5.4.4
+        version: 5.4.4
+    devDependencies:
       '@nuxt/devtools':
         specifier: ^1.7.0
         version: 1.7.0(rollup@4.32.1)(vite@6.0.11(@types/node@22.12.0)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
@@ -36,12 +36,12 @@ importers:
       '@nuxt/test-utils':
         specifier: ^3.15.4
         version: 3.15.4(@types/node@22.12.0)(jiti@2.4.2)(magicast@0.3.5)(rollup@4.32.1)(terser@5.37.0)(typescript@5.7.3)(vitest@3.0.4(@types/node@22.12.0)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))(yaml@2.7.0)
+      '@types/eslint-config-prettier':
+        specifier: ^6.11.3
+        version: 6.11.3
       '@types/node':
         specifier: latest
         version: 22.12.0
-      change-case:
-        specifier: ^5.4.4
-        version: 5.4.4
       changelogen:
         specifier: ^0.5.7
         version: 0.5.7(magicast@0.3.5)
