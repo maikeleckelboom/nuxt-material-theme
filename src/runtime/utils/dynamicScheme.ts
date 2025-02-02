@@ -6,7 +6,7 @@ import { type PaletteStyleScheme, paletteStyleScheme, paletteStyleVariant } from
  * Determines if options are using a seed-based approach by checking for a source color
  * and ensuring no other specific colors are provided.
  */
-function hasSeedSource(options: DynamicSchemeOptions): boolean {
+function hasSeedSourceColor(options: DynamicSchemeOptions): boolean {
   const hasColorSource = !!options.seedColor || !!options.primary
   return hasColorSource && !Object.values({
     secondary: options.secondary,
@@ -31,7 +31,7 @@ export function createDynamicScheme(options: DynamicSchemeOptions): Readonly<Dyn
   const baseColorArgb = Number(options.seedColor || options.primary)
   const defaultPalettes = CorePalette.of(baseColorArgb)
 
-  if (hasSeedSource(options)) {
+  if (hasSeedSourceColor(options)) {
     const SchemeConstructor: PaletteStyleScheme = paletteStyleScheme(options.style)
     return Object.freeze(new SchemeConstructor(Hct.fromInt(baseColorArgb), isDark, contrastLevel))
   }

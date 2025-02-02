@@ -30,7 +30,7 @@ export function toColorScheme(
     }
   }
 
-  if (isAmoled) {
+  if (scheme.isDark && isAmoled) {
     colors.background = argbFromHex('#000000')
     colors.surface = argbFromHex('#000000')
     colors.inverseSurface = argbFromHex('#ffffff')
