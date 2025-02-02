@@ -15,11 +15,6 @@ Nothing is stable yet – use at your own risk!
 
 # Nuxt Material Theme (⚠️ Early Development)
 
-[![npm version][npm-version-src]][npm-version-href]  
-[![npm downloads][npm-downloads-src]][npm-downloads-href]  
-[![License][license-src]][license-href]  
-[![Nuxt][nuxt-src]][nuxt-href]
-
 🚨 **Warning: This package is in an experimental stage and is NOT production-ready.**  
 APIs, features, and behavior are highly unstable and will likely change frequently.
 
