@@ -5,8 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
-    seedColor: argbFromHex('#00b2ff'),
-    tertiary: argbFromHex('#ff8000'),
+    seedColor: argbFromHex('#ff8000'),
     extendedColors: [
       {
         name: 'Forest Mist',
@@ -16,6 +15,7 @@ export default defineNuxtConfig({
         name: 'Alien Purplish',
         value: argbFromHex('#ff00ff'),
       }
-    ]
+    ],
+    includeBrightnessVariants: true,
   }
 })

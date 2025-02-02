@@ -1,6 +1,5 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import { watchIgnorable } from '@vueuse/core'
-import { watch } from 'vue'
 import { createDynamicScheme } from '../utils/dynamicScheme'
 import { useDynamicScheme } from '../composables/useDynamicScheme'
 
@@ -21,7 +20,7 @@ export default defineNuxtPlugin(({ $config }) => {
     dynamicScheme.value = createDynamicScheme(config)
   }, { immediate: true })
 
-  watch(() => config.seedColor, () => {
+  const { ignoreUpdates: ignoreSeedColorUpdates } = watchIgnorable(() => config.seedColor, () => {
     dynamicScheme.value = createDynamicScheme({
       seedColor: config.seedColor,
       isDark: config.isDark,
@@ -37,4 +36,10 @@ export default defineNuxtPlugin(({ $config }) => {
       config.neutralVariant = dynamicScheme.value.neutralVariantPaletteKeyColor
     })
   })
+
+  return {
+    provide: {
+      ignoreSeedColorUpdates
+    }
+  }
 })

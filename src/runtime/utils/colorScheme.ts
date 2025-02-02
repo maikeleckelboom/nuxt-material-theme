@@ -1,35 +1,70 @@
 import {
   argbFromHex,
+  customColor,
   DynamicColor,
-  type DynamicScheme,
+  DynamicScheme,
   MaterialDynamicColors
 } from '@material/material-color-utilities'
 import { type MaybeRefOrGetter, toValue } from 'vue'
-import type { ModifyColorSchemeOptions } from '../../types/module'
+import type { ExtendedColor, ModifyColorSchemeOptions } from '../../types/module'
 import { colorsFromDynamicScheme } from '../utils/dynamicColor'
+import { toCustomColorScheme } from '../../runtime/utils/customColorScheme'
 import { harmonize } from './blend'
 
 export function toColorScheme(
   dynamicScheme: MaybeRefOrGetter<DynamicScheme>,
   options?: ModifyColorSchemeOptions & {
-    isAmoled?: boolean,
+    extendedColors?: ExtendedColor[]
+    brightnessVariants?: boolean,
     isExtendedFidelity?: boolean,
+    isAmoled?: boolean,
   }) {
-  const { isAmoled = false, isExtendedFidelity = false } = options ?? {}
+  const {
+    extendedColors = [],
+    brightnessVariants = true,
+    isExtendedFidelity = false,
+    isAmoled = false
+  } = options ?? {}
+
+  const colors: Record<string, number> = {}
 
   const scheme = toValue(dynamicScheme)
-  const colors: Record<string, number> = colorsFromDynamicScheme(scheme)
 
+  Object.assign(colors, colorsFromDynamicScheme(scheme))
+
+  if (brightnessVariants) {
+    const otherScheme = new DynamicScheme({ ...scheme, isDark: !scheme.isDark })
+    Object.assign(colors, colorsFromDynamicScheme(scheme, true))
+    Object.assign(colors, colorsFromDynamicScheme(otherScheme, true))
+  }
+
+  if (options?.extendedColors) {
+    Object.assign(colors, extendedColors.reduce((acc, extendedColor) => {
+        const customColorGroup = customColor(scheme.sourceColorArgb, {
+          ...extendedColor,
+          blend: isExtendedFidelity || !!extendedColor.blend
+        })
+        const customScheme = toCustomColorScheme(customColorGroup, {
+          isDark: scheme.isDark,
+          ...options
+        })
+        return { ...acc, ...customScheme }
+      }, {})
+    )
+  }
+
+  // Apply fidelity modifications (Experimental)
   if (isExtendedFidelity) {
     for (const [name, color] of Object.entries(MaterialDynamicColors)) {
-      const excludeWhen = ['error', 'palette']
-      const isAllowedToBlend = excludeWhen.every((word) => !name.toLowerCase().includes(word))
+      const nonBlendable = ['error', 'palette']
+      const isAllowedToBlend = nonBlendable.every((word) => !name.toLowerCase().includes(word))
       if (color instanceof DynamicColor && isAllowedToBlend) {
         colors[name] = harmonize(color.getArgb(scheme), scheme.sourceColorArgb)
       }
     }
   }
 
+  // Apply AMOLED modifications (Experimental)
   if (scheme.isDark && isAmoled) {
     colors.background = argbFromHex('#000000')
     colors.surface = argbFromHex('#000000')
