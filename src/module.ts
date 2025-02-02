@@ -23,9 +23,10 @@ declare module '@nuxt/schema' {
   }
 }
 
-function initializeRuntimeColors(options: MaterialThemeOptions) {
-  if (!options.seedColor)
+function initializeRuntimeConfig(options: MaterialThemeOptions) {
+  if (!options.seedColor) {
     options.seedColor = options.primary || argbFromHex('#00dc82')
+  }
 
   const dynamicScheme = createDynamicScheme(options)
   options.primary ??= dynamicScheme.primaryPaletteKeyColor
@@ -64,7 +65,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
 
     nuxt.hook('modules:done', () => {
       nuxt.options.runtimeConfig.public.materialTheme =
-        initializeRuntimeColors(options)
+        initializeRuntimeConfig(options)
     })
   }
 })

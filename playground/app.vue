@@ -3,30 +3,25 @@ import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 import { useRuntimeConfig } from 'nuxt/app'
 import { PALETTE_STYLE } from '../src/types/palette-style'
 import { getContrastColor } from '../src/runtime/utils/contrast'
+import { useMaterialTheme } from '../src/runtime/composables/useMaterialTheme'
 
 const paletteStyles = Object.values(PALETTE_STYLE)
 
 const config = useRuntimeConfig().public.materialTheme
 
-const dynamicScheme = useDynamicScheme()
-
-const colorScheme = computed(() =>
-  toColorScheme(dynamicScheme.value, {
-    isExtendedFidelity: config.isExtendedFidelity,
-    isAmoled: config.withAmoled && config.isDark,
-    modifyColorScheme: (scheme) => scheme
-  })
-)
-
 const getStyle = (argb: number) => ({
   backgroundColor: hexFromArgb(argb),
   color: hexFromArgb(getContrastColor(argb))
 })
+
+const { colorScheme } = useMaterialTheme(config)
+
 </script>
 
 <template>
   <div class="main-grid">
     <div>
+      <h2>Material Theme</h2>
       <form class="color-form">
         <input
           :value="hexFromArgb(config.seedColor)"
@@ -89,6 +84,19 @@ const getStyle = (argb: number) => ({
           "
         />
 
+        <template v-for="(extendedColor,idx) in config.extendedColors" :key="idx">
+          <input
+            :value="hexFromArgb(extendedColor.value)"
+            aria-label="Extended Color"
+            type="color"
+            @input="
+              extendedColor.value = argbFromHex(
+                ($event.target as HTMLInputElement).value
+              )
+            "
+          />
+        </template>
+
         <label>
           <span>Is Dark</span>
           <input v-model="config.isDark" type="checkbox" />
@@ -120,7 +128,7 @@ const getStyle = (argb: number) => ({
         </label>
 
         <label>
-          <span>Is Amoled</span>
+          <span>With Amoled</span>
           <input v-model="config.withAmoled" type="checkbox" />
         </label>
       </form>
@@ -138,16 +146,10 @@ const getStyle = (argb: number) => ({
       <div
         v-for="(value, key, index) in colorScheme"
         :key="index"
-        :style="getStyle(value as number)"
+        :style="getStyle(value)"
       >
         <span>{{ key }}</span>
-        <span
-          :style="{
-            backgroundColor: hexFromArgb(value),
-            color: hexFromArgb(getContrastColor(value))
-          }"
-          class="color-preview-box"
-        ></span>
+
       </div>
     </div>
 
@@ -170,6 +172,10 @@ const getStyle = (argb: number) => ({
   grid-template-columns: auto 1fr 1fr 1fr;
   column-gap: 0.5rem;
   max-height: max-content;
+
+  div {
+    padding: 0.1rem;
+  }
 }
 
 .two-col {

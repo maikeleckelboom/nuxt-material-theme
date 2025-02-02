@@ -28,8 +28,7 @@ export interface PrimaryDynamicSchemeOptions extends BaseDynamicSchemeOptions {
   seedColor?: number
 }
 
-export interface SeedColorDynamicSchemeOptions
-  extends BaseDynamicSchemeOptions {
+export interface SeedColorDynamicSchemeOptions extends BaseDynamicSchemeOptions {
   seedColor: number
   primary?: number
 }
@@ -43,5 +42,9 @@ export type MaterialThemeOptions = DynamicSchemeOptions & {
   isExtendedFidelity?: boolean // Equivalent to "color match" in material.io.
   extendedColors?: ExtendedColor[]
 }
+
+export type ModifyColorSchemeOptions<T = number> = Partial<{
+  modifyColorScheme(scheme: Record<string, number>): Record<string, T>
+}>
 
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>
