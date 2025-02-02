@@ -6,12 +6,12 @@ import {
 
 export function colorsFromDynamicScheme(
   dynamicScheme: DynamicScheme,
-  applyBrightnessSuffix: boolean = false
+  appendBrightnessSuffix: boolean = false
 ): Record<string, number> {
   const colors: Record<string, number> = {}
   for (const [name, color] of Object.entries(MaterialDynamicColors)) {
     if (color instanceof DynamicColor) {
-      const suffix = applyBrightnessSuffix
+      const suffix = appendBrightnessSuffix
         ? dynamicScheme.isDark
           ? 'Dark'
           : 'Light'

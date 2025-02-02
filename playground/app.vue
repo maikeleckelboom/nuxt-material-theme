@@ -3,7 +3,7 @@ import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 
 const theme = useRuntimeConfig().public.materialTheme
 
-const { colorScheme, dynamicScheme, ignoreSeedUpdates } = useMaterialTheme(theme)
+const { colorScheme, ignoreSeedUpdates } = useMaterialTheme(theme)
 
 useHead({
   title: 'Material Theme Playground',

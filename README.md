@@ -7,25 +7,37 @@ Find and replace all on all files (CMD+SHIFT+F):
 - Description: My new Nuxt module
 -->
 
-# Nuxt Material Theme
+<!--  
+🚧 This package is in **very early development**.  
+Expect **breaking changes**, incomplete features, and rapid iteration.  
+Nothing is stable yet – use at your own risk!  
+-->
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
+# Nuxt Material Theme (⚠️ Early Development)
+
+[![npm version][npm-version-src]][npm-version-href]  
+[![npm downloads][npm-downloads-src]][npm-downloads-href]  
+[![License][license-src]][license-href]  
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Nuxt Material Theme for doing amazing things.
+🚨 **Warning: This package is in an experimental stage and is NOT production-ready.**  
+APIs, features, and behavior are highly unstable and will likely change frequently.
+
+Enhance your Nuxt app with beautiful and customizable Material Design themes.
 
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+
+<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->  
+<!-- - [📖 &nbsp;Documentation](https://example.com) -->  
 
 ## Features
 
 <!-- Highlight some of the features your module provide here -->
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
+
+- 🎨 Material Design Theming: Easily integrate Material Design theming into your Nuxt application.
+- 🌈 Custom Color Schemes: Define and use custom color schemes with support for light and dark variants.
+- 🚀 Quick Setup: Simple installation and setup process with npx nuxi module add.
+- 📜 TypeScript Support: Full TypeScript support for type safety and better developer experience.
 
 ## Quick Setup
 
@@ -37,12 +49,11 @@ npx nuxi module add nuxt-material-theme
 
 That's it! You can now use Nuxt Material Theme in your Nuxt app ✨
 
-
 ## Contribution
 
 <details>
   <summary>Local development</summary>
-  
+
   ```bash
   # Install dependencies
   npm install
@@ -71,14 +82,19 @@ That's it! You can now use Nuxt Material Theme in your Nuxt app ✨
 
 
 <!-- Badges -->
+
 [npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
+
 [npm-version-href]: https://npmjs.com/package/my-module
 
 [npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
+
 [npm-downloads-href]: https://npm.chart.dev/my-module
 
 [license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
+
 [license-href]: https://npmjs.com/package/my-module
 
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
+
 [nuxt-href]: https://nuxt.com

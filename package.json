@@ -1,8 +1,15 @@
 {
   "name": "nuxt-material-theme",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A Nuxt module to easily add Material Design theming to your Nuxt app",
-  "repository": "your-org/my-module",
+  "repository": "your-username/nuxt-material-theme",
+  "homepage": "https://github.com/maikeleckelboom/nuxt-material-theme#readme",
+  "bugs": {
+    "url": "https://github.com/maikeleckelboom/nuxt-material-theme/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {

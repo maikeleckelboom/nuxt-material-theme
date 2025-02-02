@@ -1,7 +1,7 @@
 import type { CustomColorGroup } from '@material/material-color-utilities'
 import { camelize } from '@vueuse/core'
 import { changeCase } from './changeCase'
-import type { ModifyColorSchemeOptions } from '~/src/types/module'
+import type { ModifyColorScheme } from '~/src/types/module'
 
 function formatCustomColorName(
   blueprint: string,
@@ -9,17 +9,20 @@ function formatCustomColorName(
   options?: { suffix: string }
 ): string {
   const { suffix = '' } = options || {}
-  const parts = blueprint.split(/(?=[A-Z])/)
-    .map(part => part.toLowerCase().replace('color', camelize(name)))
+  const parts = blueprint
+    .split(/(?=[A-Z])/)
+    .map((part) => part.toLowerCase().replace('color', camelize(name)))
   return changeCase(parts.join('_') + suffix)
 }
 
 export function toCustomColorScheme(
   colorGroup: CustomColorGroup,
-  options?: ModifyColorSchemeOptions & { isDark: boolean }
+  options?: { isDark: boolean; modifyColorScheme?: ModifyColorScheme }
 ): Record<string, number> {
   const tokens: Record<string, number> = {}
-  const { color: { name } } = colorGroup
+  const {
+    color: { name }
+  } = colorGroup
 
   // Process main colors for the selected theme (dark or light).
   const mainEntries = options?.isDark ? colorGroup.dark : colorGroup.light
