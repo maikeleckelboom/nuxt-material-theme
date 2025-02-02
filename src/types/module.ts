@@ -1,4 +1,4 @@
-import type { PaletteStyle } from './palette-style'
+import type { PaletteStyle } from './paletteStyle'
 import type { ContrastLevel } from './contrastLevel'
 
 export interface ExtendedColor {
@@ -38,9 +38,10 @@ export type DynamicSchemeOptions =
   | SeedColorDynamicSchemeOptions
 
 export type MaterialThemeOptions = DynamicSchemeOptions & {
-  withAmoled?: boolean // Whether the dark scheme is used with Amoled screen (Pure dark).
-  isExtendedFidelity?: boolean // Equivalent to "color match" in material.io.
+  withAmoled?: boolean
+  isExtendedFidelity?: boolean
   extendedColors?: ExtendedColor[]
+  includeBrightnessVariants?: boolean
 }
 
 export type ModifyColorSchemeOptions<T = number> = Partial<{

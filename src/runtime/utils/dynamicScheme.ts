@@ -1,6 +1,6 @@
 import { CorePalette, DynamicScheme, Hct, TonalPalette } from '@material/material-color-utilities'
 import type { DynamicSchemeOptions } from '../../types/module'
-import { type PaletteStyleScheme, paletteStyleScheme, paletteStyleVariant } from '../../types/palette-style'
+import { type PaletteStyleScheme, paletteStyleScheme, paletteStyleVariant } from '../../types/paletteStyle'
 
 /**
  * Determines if options are using a seed-based approach by checking for a source color

@@ -1,21 +1,11 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
-import { useRuntimeConfig } from 'nuxt/app'
-import { PALETTE_STYLE } from '../src/types/palette-style'
-import { getContrastColor } from '../src/runtime/utils/contrast'
-import { useMaterialTheme } from '../src/runtime/composables/useMaterialTheme'
 
-const paletteStyles = Object.values(PALETTE_STYLE)
+const { $ignoreSeedColorUpdates } = useNuxtApp()
 
-const config = useRuntimeConfig().public.materialTheme
+const theme = useRuntimeConfig().public.materialTheme
 
-const getStyle = (argb: number) => ({
-  backgroundColor: hexFromArgb(argb),
-  color: hexFromArgb(getContrastColor(argb))
-})
-
-const { colorScheme } = useMaterialTheme(config)
-
+const { colorScheme } = useMaterialTheme(theme)
 </script>
 
 <template>
@@ -24,67 +14,65 @@ const { colorScheme } = useMaterialTheme(config)
       <h2>Material Theme</h2>
       <form class="color-form">
         <input
-          :value="hexFromArgb(config.seedColor)"
+          :value="hexFromArgb(theme.seedColor)"
           aria-label="Seed Color"
           type="color"
-          @input="
-            config.seedColor = argbFromHex(
+          @input="theme.seedColor = argbFromHex(
               ($event.target as HTMLInputElement).value
-            )
-          "
+          )"
         />
         <input
-          :value="hexFromArgb(config.primary)"
+          :value="hexFromArgb(theme.primary)"
           aria-label="config.primary Color"
           type="color"
-          @input="
-            config.primary = argbFromHex(
+          @input="$ignoreSeedColorUpdates(()=> {
+            theme.seedColor = theme.primary = argbFromHex(
               ($event.target as HTMLInputElement).value
             )
-          "
+          })"
         />
         <input
-          :value="hexFromArgb(config.secondary)"
+          :value="hexFromArgb(theme.secondary)"
           aria-label="Secondary Color"
           type="color"
           @input="
-            config.secondary = argbFromHex(
+            theme.secondary = argbFromHex(
               ($event.target as HTMLInputElement).value
             )
           "
         />
         <input
-          :value="hexFromArgb(config.tertiary)"
+          :value="hexFromArgb(theme.tertiary)"
           aria-label="Tertiary Color"
           type="color"
           @input="
-            config.tertiary = argbFromHex(
+            theme.tertiary = argbFromHex(
               ($event.target as HTMLInputElement).value
             )
           "
         />
         <input
-          :value="hexFromArgb(config.neutral)"
+          :value="hexFromArgb(theme.neutral)"
           aria-label="Neutral Color"
           type="color"
           @input="
-            config.neutral = argbFromHex(
+            theme.neutral = argbFromHex(
               ($event.target as HTMLInputElement).value
             )
           "
         />
         <input
-          :value="hexFromArgb(config.neutralVariant)"
+          :value="hexFromArgb(theme.neutralVariant)"
           aria-label="Neutral Variant Color"
           type="color"
           @input="
-            config.neutralVariant = argbFromHex(
+            theme.neutralVariant = argbFromHex(
               ($event.target as HTMLInputElement).value
             )
           "
         />
 
-        <template v-for="(extendedColor,idx) in config.extendedColors" :key="idx">
+        <template v-for="(extendedColor,idx) in theme.extendedColors" :key="idx">
           <input
             :value="hexFromArgb(extendedColor.value)"
             aria-label="Extended Color"
@@ -98,14 +86,19 @@ const { colorScheme } = useMaterialTheme(config)
         </template>
 
         <label>
+          <span>Include Brightness Variants</span>
+          <input v-model="theme.includeBrightnessVariants" type="checkbox" />
+        </label>
+
+        <label>
           <span>Is Dark</span>
-          <input v-model="config.isDark" type="checkbox" />
+          <input v-model="theme.isDark" type="checkbox" />
         </label>
 
         <label>
           <span>Style</span>
-          <select v-model="config.style">
-            <option v-for="style in paletteStyles" :key="style" :value="style">
+          <select v-model="theme.style">
+            <option v-for="style in listPaletteStyles()" :key="style" :value="style">
               {{ style }}
             </option>
           </select>
@@ -114,7 +107,7 @@ const { colorScheme } = useMaterialTheme(config)
         <label>
           <span>Contrast</span>
           <input
-            v-model="config.contrastLevel"
+            v-model="theme.contrastLevel"
             max="1"
             min="-1"
             step="0.1"
@@ -124,12 +117,12 @@ const { colorScheme } = useMaterialTheme(config)
 
         <label>
           <span>Is Extended Fidelity</span>
-          <input v-model="config.isExtendedFidelity" type="checkbox" />
+          <input v-model="theme.isExtendedFidelity" type="checkbox" />
         </label>
 
         <label>
           <span>With Amoled</span>
-          <input v-model="config.withAmoled" type="checkbox" />
+          <input v-model="theme.withAmoled" type="checkbox" />
         </label>
       </form>
 
@@ -146,10 +139,11 @@ const { colorScheme } = useMaterialTheme(config)
       <div
         v-for="(value, key, index) in colorScheme"
         :key="index"
-        :style="getStyle(value)"
-      >
+        :style="{
+          backgroundColor: hexFromArgb(value),
+          color: hexFromArgb(getContrastColor(value))
+        }">
         <span>{{ key }}</span>
-
       </div>
     </div>
 
@@ -169,7 +163,7 @@ const { colorScheme } = useMaterialTheme(config)
 
 .main-grid {
   display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   column-gap: 0.5rem;
   max-height: max-content;
 

@@ -29,14 +29,6 @@ export function paletteStyleVariant(style?: PaletteStyle, fallback = PALETTE_STY
   return ordinal === -1 ? 0 : ordinal
 }
 
-export function variantPaletteStyle(variant: number): PaletteStyle {
-  const style = Object.values(PALETTE_STYLE)[variant]
-  if (!style) {
-    throw new Error(`Invalid palette style variant: ${variant}`)
-  }
-  return style
-}
-
 const PaletteStyleToScheme = {
   [PALETTE_STYLE.Monochrome]: SchemeMonochrome,
   [PALETTE_STYLE.Neutral]: SchemeNeutral,
