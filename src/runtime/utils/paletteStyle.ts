@@ -8,8 +8,8 @@ import {
   SchemeRainbow,
   SchemeTonalSpot,
   SchemeVibrant
-} from '@material/material-color-utilities';
-import { PALETTE_STYLE } from './constants';
+} from '@material/material-color-utilities'
+import { PALETTE_STYLE, type PaletteStyle } from './constants'
 
 const PaletteStyleToScheme = {
   [PALETTE_STYLE.Monochrome]: SchemeMonochrome,
@@ -21,21 +21,22 @@ const PaletteStyleToScheme = {
   [PALETTE_STYLE.Content]: SchemeContent,
   [PALETTE_STYLE.Rainbow]: SchemeRainbow,
   [PALETTE_STYLE.FruitSalad]: SchemeFruitSalad
-} as const;
+} as const
 
-export type PaletteStyleScheme = typeof PaletteStyleToScheme[keyof typeof PaletteStyleToScheme];
+export type PaletteStyleScheme =
+  (typeof PaletteStyleToScheme)[keyof typeof PaletteStyleToScheme]
 
 export function paletteStyleScheme(
-  style?: import('./constants').PaletteStyle,
-  fallback: import('./constants').PaletteStyle = PALETTE_STYLE.TonalSpot
+  style?: PaletteStyle,
+  fallbackStyle: PaletteStyle = PALETTE_STYLE.TonalSpot
 ): PaletteStyleScheme {
-  const scheme = PaletteStyleToScheme[style || fallback];
+  const scheme = PaletteStyleToScheme[style || fallbackStyle]
   if (!scheme) {
-    throw new Error(`Invalid palette style: ${style}`);
+    throw new Error(`Invalid palette style: ${style}`)
   }
-  return scheme;
+  return scheme
 }
 
 export function listPaletteStyles(): string[] {
-  return Object.keys(PaletteStyleToScheme);
+  return Object.keys(PaletteStyleToScheme)
 }

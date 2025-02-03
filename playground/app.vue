@@ -1,9 +1,74 @@
 <script lang="ts" setup>
+import type { DynamicScheme } from '@material/material-color-utilities'
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
+import { createDynamicColor } from '../src/runtime/utils/dynamicColor'
+
+class ContrastCurve {
+  readonly low: number = -1
+  readonly normal: number = 0.0
+  readonly medium: number = 0.5
+  readonly high: number = 1.0
+
+  constructor(low: number, normal: number, medium: number, high: number) {
+    this.low = low
+    this.normal = normal
+    this.medium = medium
+    this.high = high
+  }
+
+  /**
+   * Returns the value at a given contrast level.
+   *
+   * @param contrastLevel The contrast level. 0.0 is the default (normal); -1.0 is the lowest; 1.0 is the highest.
+   * @return The value. For contrast ratios, a number between 1.0 and 21.0.
+   */
+  get(contrastLevel: number): number {
+    if (contrastLevel < this.low) {
+      return 1.0
+    } else if (contrastLevel < this.normal) {
+      return (
+        1.0 + ((this.normal - contrastLevel) * (1.0 - 1.0)) / (this.normal - this.low)
+      )
+    } else if (contrastLevel < this.medium) {
+      return (
+        1.0 +
+        ((contrastLevel - this.normal) * (this.medium - 1.0)) /
+          (this.medium - this.normal)
+      )
+    } else if (contrastLevel < this.high) {
+      return (
+        1.0 +
+        ((contrastLevel - this.medium) * (this.high - this.medium)) /
+          (this.high - this.medium)
+      )
+    } else {
+      return 1.0 + ((contrastLevel - this.high) * (21.0 - this.high)) / (21.0 - this.high)
+    }
+  }
+}
 
 const theme = useRuntimeConfig().public.materialTheme
 
-const { colorScheme, ignoreSeedUpdates } = useMaterialTheme(theme)
+const {
+  colorScheme,
+  dynamicScheme: _dynamicScheme,
+  ignoreSeedUpdates
+} = useMaterialTheme(theme)
+
+const dynamicColor = createDynamicColor({
+  name: 'Material Theme Playground',
+  palette: (scheme: DynamicScheme) => scheme.primaryPalette,
+  tone: (scheme: DynamicScheme) => (scheme.isDark ? 80 : 30),
+  isBackground: false,
+  contrastCurve: new ContrastCurve(3, 4.5, 7, 14),
+  toneDeltaPair: (_scheme: DynamicScheme) => ({
+    roleA: 60,
+    roleB: 30,
+    delta: 30
+  })
+})
+
+console.log(dynamicColor)
 
 useHead({
   title: 'Material Theme Playground',

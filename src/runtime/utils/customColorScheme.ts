@@ -34,6 +34,7 @@ export function toCustomColorScheme(
   // Process additional tokens for variants.
   const variantSuffixes = ['_light', '_dark']
   for (const suffix of variantSuffixes) {
+
     // Derive the variant key by removing the underscore.
     const variantType = suffix.slice(1) as 'light' | 'dark'
     for (const [blueprint, value] of Object.entries(colorGroup[variantType])) {

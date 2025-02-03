@@ -1,12 +1,12 @@
 import {
   CorePalette,
   DynamicScheme,
-  Hct,
   TonalPalette
 } from '@material/material-color-utilities'
 import type { DynamicSchemeOptions } from '../../types/module'
 import { paletteStyleScheme, type PaletteStyleScheme } from './paletteStyle'
 import { paletteStyleVariant } from './constants'
+import { toHct } from './hct'
 
 /**
  * Determines if options are using a seed-based approach by checking for a source color
@@ -48,7 +48,7 @@ export function createDynamicScheme(
   if (hasSeedSourceColor(options)) {
     const SchemeConstructor: PaletteStyleScheme = paletteStyleScheme(options.style)
     return Object.freeze(
-      new SchemeConstructor(Hct.fromInt(baseColorArgb), isDark, contrastLevel)
+      new SchemeConstructor(toHct(baseColorArgb), isDark, contrastLevel)
     )
   }
 

@@ -7,9 +7,28 @@ import {
 } from '@material/material-color-utilities'
 import { toValue } from 'vue'
 import type { ExtendedColor, ModifyColorScheme } from '../../types/module'
-import { colorsFromDynamicScheme } from '../utils/dynamicColor'
 import { toCustomColorScheme } from '../../runtime/utils/customColorScheme'
 import { harmonize } from './blend'
+
+export function colorsFromDynamicScheme(
+  dynamicScheme: DynamicScheme,
+  appendBrightnessSuffix: boolean = false
+): Record<string, number> {
+  const colors: Record<string, number> = {}
+  for (const [name, color] of Object.entries(MaterialDynamicColors)) {
+    if (color instanceof DynamicColor) {
+      let suffix = ''
+      if (appendBrightnessSuffix) {
+        suffix = dynamicScheme.isDark ? 'Dark' : 'Light'
+      }
+      if (suffix && name.toLowerCase().includes('palette')) {
+        continue
+      }
+      colors[`${name}${suffix}`] = color.getArgb(dynamicScheme)
+    }
+  }
+  return colors
+}
 
 export function toColorScheme(
   dynamicScheme: DynamicScheme,

@@ -3,41 +3,37 @@ import { watchIgnorable } from '@vueuse/core'
 import type { DynamicScheme } from '@material/material-color-utilities'
 import { useState } from 'nuxt/app'
 import { toColorScheme } from '../utils/colorScheme'
-import type { MaterialThemeOptions, ModifyColorSchemeOptions } from '../../types/module'
+import type { MaterialThemeOptions, ModifyColorScheme } from '../../types/module'
 import { createDynamicScheme } from '../../runtime/utils/dynamicScheme'
 
 /**
  * A Material Theme that adapts to the given seed color and the provided custom colors.
+ *
+ * @param theme - The Material Theme options
+ * @param options - The options to modify the color scheme
  */
 export function useMaterialTheme(
   theme: MaterialThemeOptions,
-  options?: ModifyColorSchemeOptions
+  options?: {
+    modifyColorScheme?: ModifyColorScheme
+  }
 ) {
-  const _uuid = useId()
-  const dynamicScheme = useState<DynamicScheme>(_uuid)
+  const uuid = useId()
+  const dynamicScheme = useState<DynamicScheme>(uuid)
 
-  const colorScheme = computed(() => {
-    if (!dynamicScheme.value) return {}
-    return toColorScheme(dynamicScheme.value, {
-      isExtendedFidelity: theme.isExtendedFidelity,
-      isAmoled: theme.withAmoled,
-      extendedColors: theme.extendedColors,
-      brightnessVariants: theme.brightnessVariants,
-      modifyColorScheme: options?.modifyColorScheme
-    })
-  })
+  const propsToWatch = [
+    'primary',
+    'isDark',
+    'contrastLevel',
+    'style',
+    'secondary',
+    'tertiary',
+    'neutral',
+    'neutralVariant'
+  ] as const
 
   const { ignoreUpdates } = watchIgnorable(
-    () => [
-      theme.primary,
-      theme.isDark,
-      theme.contrastLevel,
-      theme.style,
-      theme.secondary,
-      theme.tertiary,
-      theme.neutral,
-      theme.neutralVariant
-    ],
+    propsToWatch.map((prop) => () => theme[prop]),
     () => {
       dynamicScheme.value = createDynamicScheme(theme)
     },
@@ -65,6 +61,17 @@ export function useMaterialTheme(
       dynamicScheme.value = scheme
     }
   )
+
+  const colorScheme = computed(() => {
+    if (!dynamicScheme.value) return {}
+    return toColorScheme(dynamicScheme.value, {
+      isExtendedFidelity: theme.isExtendedFidelity,
+      isAmoled: theme.withAmoled,
+      extendedColors: theme.extendedColors,
+      brightnessVariants: theme.brightnessVariants,
+      modifyColorScheme: options?.modifyColorScheme
+    })
+  })
 
   return {
     dynamicScheme,

@@ -48,6 +48,8 @@ export default defineNuxtModule<MaterialThemeOptions>({
 
     addImportsDir(resolver.resolve('./runtime/composables'))
     addImportsDir(resolver.resolve('./runtime/utils'))
+    addImportsDir(resolver.resolve('./runtime/workers/quantize'))
+    addImportsDir(resolver.resolve('./runtime/workers/quantize/utils'))
 
     addPlugin(resolver.resolve('./runtime/plugins/payload/hct'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/tonalPalette'))
@@ -55,8 +57,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
     addPlugin(resolver.resolve('./runtime/plugins/plugin'))
 
     nuxt.hook('modules:done', () => {
-      nuxt.options.runtimeConfig.public.materialTheme =
-        initializeRuntimeConfig(options)
+      nuxt.options.runtimeConfig.public.materialTheme = initializeRuntimeConfig(options)
     })
   }
 })

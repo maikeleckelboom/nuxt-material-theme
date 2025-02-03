@@ -15,7 +15,14 @@ export interface ScoreOptions {
   filter?: boolean
 }
 
-export function scoreByMostSuitable(
+/**
+ * Ranks colors based on usage counts; previously known as 'scoreByMostSuitable'.
+ *
+ * @param colorToCount - A map of color ARGB values to their usage counts.
+ * @param options - Options for ranking colors based on usage counts.
+ * @returns The top colors based on usage counts.
+ */
+export function score(
   colorToCount: Map<number, number>,
   options: ScoreOptions = {}
 ): [number, ...number[]] {

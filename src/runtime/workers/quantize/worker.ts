@@ -1,6 +1,6 @@
 import { getDataFromImageSource, pixelsFromImageData } from './utils/image'
-import { quantizeColors } from './utils/quantization'
-import { scoreByMostSuitable } from './utils/scoring'
+import { quantize } from './utils/quantization'
+import { score } from './utils/scoring'
 import type { QuantizeWorkerEvent } from './types/events'
 import { isStartEvent } from './guards'
 
@@ -9,8 +9,8 @@ if (typeof self !== 'undefined') {
     if (isStartEvent(event)) {
       const imageData = await getDataFromImageSource(event.data.source)
       const pixels = pixelsFromImageData(imageData)
-      const colorToCount = quantizeColors(pixels, event.data.maxColors)
-      const rankedSuggestions = scoreByMostSuitable(colorToCount, {
+      const colorToCount = quantize(pixels, event.data.maxColors)
+      const rankedSuggestions = score(colorToCount, {
         desired: event.data.desired,
         filter: event.data.filter
       })
