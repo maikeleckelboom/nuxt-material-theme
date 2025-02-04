@@ -47,14 +47,6 @@ class ContrastCurve {
   }
 }
 
-const theme = useRuntimeConfig().public.materialTheme
-
-const {
-  colorScheme,
-  dynamicScheme: _dynamicScheme,
-  ignoreSeedUpdates
-} = useMaterialTheme(theme)
-
 const dynamicColor = createDynamicColor({
   name: 'Material Theme Playground',
   palette: (scheme: DynamicScheme) => scheme.primaryPalette,
@@ -69,6 +61,14 @@ const dynamicColor = createDynamicColor({
 })
 
 console.log(dynamicColor)
+
+const theme = useRuntimeConfig().public.materialTheme
+
+const {
+  colorScheme,
+  dynamicScheme: _dynamicScheme,
+  ignoreSeedUpdates
+} = useMaterialTheme(theme)
 
 useHead({
   title: 'Material Theme Playground',
@@ -91,6 +91,7 @@ useHead({
   <div class="main-grid">
     <div>
       <h2>Material Theme</h2>
+      <pre>{{ dynamicColor }}</pre>
       <form class="color-form">
         <input
           :value="hexFromArgb(theme.seedColor)"

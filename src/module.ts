@@ -2,6 +2,7 @@ import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nux
 import { argbFromHex } from '@material/material-color-utilities'
 import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/module'
 import { createDynamicScheme } from './runtime/utils/dynamicScheme'
+import { useDynamicScheme } from '#imports'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
@@ -19,6 +20,7 @@ function initializeRuntimeConfig(options: MaterialThemeOptions) {
   }
 
   const dynamicScheme = createDynamicScheme(options)
+
   options.primary ??= dynamicScheme.primaryPaletteKeyColor
   options.secondary ??= dynamicScheme.secondaryPaletteKeyColor
   options.tertiary ??= dynamicScheme.tertiaryPaletteKeyColor
@@ -54,6 +56,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
     addPlugin(resolver.resolve('./runtime/plugins/payload/hct'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/tonalPalette'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicScheme'))
+    addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicColor'))
     addPlugin(resolver.resolve('./runtime/plugins/plugin'))
 
     nuxt.hook('modules:done', () => {

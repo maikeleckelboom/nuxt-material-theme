@@ -1,6 +1,5 @@
 import type { CustomColorGroup } from '@material/material-color-utilities'
-import { camelize } from '@vueuse/core'
-import { changeCase } from './changeCase'
+import { camelCase } from 'change-case'
 import type { ModifyColorScheme } from '~/src/types/module'
 
 function formatCustomColorName(
@@ -11,8 +10,8 @@ function formatCustomColorName(
   const { suffix = '' } = options || {}
   const parts = blueprint
     .split(/(?=[A-Z])/)
-    .map((part) => part.toLowerCase().replace('color', camelize(name)))
-  return changeCase(parts.join('_') + suffix)
+    .map((part) => part.toLowerCase().replace('color', camelCase(name)))
+  return camelCase(parts.join('_') + suffix)
 }
 
 export function toCustomColorScheme(
@@ -24,18 +23,16 @@ export function toCustomColorScheme(
     color: { name }
   } = colorGroup
 
-  // Process main colors for the selected theme (dark or light).
+  // Process main colors for the selected theme (dark or light)
   const mainEntries = options?.isDark ? colorGroup.dark : colorGroup.light
   for (const [blueprint, value] of Object.entries(mainEntries)) {
     const token = formatCustomColorName(blueprint, name)
     tokens[token] = value
   }
 
-  // Process additional tokens for variants.
+  // Process additional tokens for variants
   const variantSuffixes = ['_light', '_dark']
   for (const suffix of variantSuffixes) {
-
-    // Derive the variant key by removing the underscore.
     const variantType = suffix.slice(1) as 'light' | 'dark'
     for (const [blueprint, value] of Object.entries(colorGroup[variantType])) {
       const token = formatCustomColorName(blueprint, name, { suffix })
