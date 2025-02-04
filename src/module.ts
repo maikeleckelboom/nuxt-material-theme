@@ -56,7 +56,6 @@ export default defineNuxtModule<MaterialThemeOptions>({
     addPlugin(resolver.resolve('./runtime/plugins/payload/hct'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/tonalPalette'))
     addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicScheme'))
-    addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicColor'))
     addPlugin(resolver.resolve('./runtime/plugins/plugin'))
 
     nuxt.hook('modules:done', () => {

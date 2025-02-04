@@ -44,7 +44,7 @@ export function useMaterialTheme(
     () => theme.seedColor,
     () => {
       const scheme = createDynamicScheme({
-        seedColor: Number(theme.seedColor || theme.primary),
+        seedColor: Number(theme.seedColor || 0),
         isDark: theme.isDark,
         style: theme.style,
         contrastLevel: theme.contrastLevel

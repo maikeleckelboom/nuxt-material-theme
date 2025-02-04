@@ -1,5 +1,5 @@
-import {definePayloadPlugin, definePayloadReducer, definePayloadReviver} from "nuxt/app";
-import {Hct, TonalPalette} from "@material/material-color-utilities";
+import { definePayloadPlugin, definePayloadReducer, definePayloadReviver } from 'nuxt/app'
+import { Hct, TonalPalette } from '@material/material-color-utilities'
 
 export default definePayloadPlugin(() => {
   definePayloadReducer('TonalPalette', (data) => {

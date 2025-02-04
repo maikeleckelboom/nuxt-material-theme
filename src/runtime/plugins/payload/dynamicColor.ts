@@ -1,5 +1,6 @@
 import { definePayloadReducer, definePayloadReviver } from 'nuxt/app'
 import { DynamicColor } from '@material/material-color-utilities'
+import { ContrastCurve } from '../../lib/ContrastCurve'
 import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin((_nuxtApp) => {
@@ -19,7 +20,18 @@ export default defineNuxtPlugin((_nuxtApp) => {
   })
 
   definePayloadReviver('dynamicColor', (payload) => {
-    if (payload && typeof payload === 'object') {
+    if (
+      payload &&
+      typeof payload === 'object' &&
+      'name' in payload &&
+      'palette' in payload &&
+      'tone' in payload &&
+      'isBackground' in payload &&
+      'background' in payload &&
+      'secondBackground' in payload &&
+      'contrastCurve' in payload &&
+      'toneDeltaPair' in payload
+    ) {
       return new DynamicColor(
         payload.name,
         payload.palette,
@@ -27,7 +39,12 @@ export default defineNuxtPlugin((_nuxtApp) => {
         payload.isBackground,
         payload.background,
         payload.secondBackground,
-        payload.contrastCurve,
+        new ContrastCurve(
+          payload.contrastCurve.low,
+          payload.contrastCurve.normal,
+          payload.contrastCurve.medium,
+          payload.contrastCurve.high
+        ),
         payload.toneDeltaPair
       )
     }
