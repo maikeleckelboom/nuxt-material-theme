@@ -31,23 +31,24 @@ function generateTonalPalette(color: number | undefined, fallback: TonalPalette)
 /**
  * Generates a dynamic color scheme based on the provided configuration options.
  */
-export function createDynamicScheme(options: DynamicSchemeOptions): Readonly<DynamicScheme> {
+export function createDynamicScheme(options: DynamicSchemeOptions): DynamicScheme {
   const { contrastLevel = 0, isDark = false } = options
 
   const baseColorArgb = Number(options.seedColor || options.primary)
-  const SchemeConstructor: PaletteStyleScheme = paletteStyleScheme(options.style)
-  const dynamicSeedScheme = new SchemeConstructor(toHct(baseColorArgb), isDark, contrastLevel)
+
+  const Scheme: PaletteStyleScheme = paletteStyleScheme(options.style)
+  const scheme = new Scheme(toHct(baseColorArgb), isDark, contrastLevel)
 
   if (hasSeedSourceColor(options)) {
-    return dynamicSeedScheme
+    return scheme
   }
 
   const defaultPalettes = {
-    a1: dynamicSeedScheme.primaryPalette,
-    a2: dynamicSeedScheme.secondaryPalette,
-    a3: dynamicSeedScheme.tertiaryPalette,
-    n1: dynamicSeedScheme.neutralPalette,
-    n2: dynamicSeedScheme.neutralVariantPalette
+    a1: scheme.primaryPalette,
+    a2: scheme.secondaryPalette,
+    a3: scheme.tertiaryPalette,
+    n1: scheme.neutralPalette,
+    n2: scheme.neutralVariantPalette
   }
 
   return new DynamicScheme({

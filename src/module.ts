@@ -40,7 +40,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
     style: 'TonalSpot',
     contrastLevel: 0,
     isDark: false,
-    withAmoled: false,
+    isAmoled: false,
     isExtendedFidelity: false,
     brightnessVariants: false
   },

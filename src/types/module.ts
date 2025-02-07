@@ -38,7 +38,7 @@ export type DynamicSchemeOptions =
   | SeedColorDynamicSchemeOptions
 
 export type MaterialThemeOptions = DynamicSchemeOptions & {
-  withAmoled?: boolean
+  isAmoled?: boolean
   isExtendedFidelity?: boolean
   extendedColors?: ExtendedColor[]
   brightnessVariants?: boolean

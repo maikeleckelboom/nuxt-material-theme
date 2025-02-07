@@ -1,33 +1,32 @@
 <script lang="ts" setup>
-import {
-  argbFromHex,
-  type CustomColor,
-  hexFromArgb,
-  themeFromSourceColor
-} from '@material/material-color-utilities'
+import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 import { getContrastColor } from '../src/runtime/utils/contrast'
-import type { ExtendedColor } from '../src/types/module'
 import { useMaterialThemeBuilder } from '../src/runtime/composables/useMaterialTheme'
+import { colorSchemeFromTheme, generateTheme } from '../src/runtime/utils/v2/themeFromSeedColor'
 
-const theme = useRuntimeConfig().public.materialTheme
+const themeConfig = useRuntimeConfig().public.materialTheme
 
-const { colorScheme, syncPrimaryWithSeed, ignoreWatcher } = useMaterialThemeBuilder(theme)
+const { isPrimaryDrivenBySeed, ignoreUpdates } = useMaterialThemeBuilder(themeConfig)
 
-function normalizeExtendedColors(extendedColors?: ExtendedColor[]): CustomColor[] {
-  return (extendedColors || []).map((color) => ({
-    name: color.name,
-    value: color.value,
-    blend: Boolean(color.blend || theme.isExtendedFidelity)
-  }))
-}
+const theme = computed(() =>
+  generateTheme(themeConfig.seedColor, {
+    style: themeConfig.style,
+    contrastLevel: themeConfig.contrastLevel,
+    primary: themeConfig.primary,
+    secondary: themeConfig.secondary,
+    tertiary: themeConfig.tertiary,
+    neutral: themeConfig.neutral,
+    neutralVariant: themeConfig.neutralVariant,
+    extendedColors: themeConfig.extendedColors
+  })
+)
 
-onMounted(() => {
-  const generatedTheme = themeFromSourceColor(
-    theme.seedColor,
-    normalizeExtendedColors(theme.extendedColors)
-  )
-  console.log('theme', generatedTheme)
-})
+const themeColors = computed(() =>
+  colorSchemeFromTheme(theme.value, {
+    isDark: themeConfig.isDark,
+    brightnessVariants: themeConfig.brightnessVariants
+  })
+)
 
 useHead({
   title: 'Material Theme Playground',
@@ -35,8 +34,8 @@ useHead({
     {
       textContent: computed(
         () => `body {
-          background-color: ${hexFromArgb(colorScheme.value.background)};
-          color: ${hexFromArgb(colorScheme.value.onBackground)};
+          background-color: ${hexFromArgb(themeColors.value.background)};
+          color: ${hexFromArgb(themeColors.value.onBackground)};
         }`
       )
     }
@@ -46,13 +45,14 @@ useHead({
 function updatePrimary(event: Event) {
   const target = event.target as HTMLInputElement
   const value = argbFromHex(target.value)
-  if (syncPrimaryWithSeed.value) {
-    ignoreWatcher(() => {
-      theme.seedColor = value
-      theme.primary = value
+  if (isPrimaryDrivenBySeed.value) {
+    themeConfig.primary = value
+    ignoreUpdates(() => {
+      themeConfig.seedColor = value
+      themeConfig.primary = value
     })
   } else {
-    theme.primary = value
+    themeConfig.primary = value
   }
 }
 </script>
@@ -63,43 +63,45 @@ function updatePrimary(event: Event) {
       <h2>Material Theme</h2>
       <form class="color-form">
         <input
-          :value="hexFromArgb(theme.seedColor)"
+          :value="hexFromArgb(themeConfig.seedColor)"
           aria-label="Seed Color"
           type="color"
-          @input="theme.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="themeConfig.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
-          :value="hexFromArgb(theme.primary)"
+          :value="hexFromArgb(themeConfig.primary)"
           aria-label="config.primary Color"
           type="color"
           @input="updatePrimary"
         />
         <input
-          :value="hexFromArgb(theme.secondary)"
+          :value="hexFromArgb(themeConfig.secondary)"
           aria-label="Secondary Color"
           type="color"
-          @input="theme.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="themeConfig.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
-          :value="hexFromArgb(theme.tertiary)"
+          :value="hexFromArgb(themeConfig.tertiary)"
           aria-label="Tertiary Color"
           type="color"
-          @input="theme.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="themeConfig.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
-          :value="hexFromArgb(theme.neutral)"
+          :value="hexFromArgb(themeConfig.neutral)"
           aria-label="Neutral Color"
           type="color"
-          @input="theme.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="themeConfig.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
         />
         <input
-          :value="hexFromArgb(theme.neutralVariant)"
+          :value="hexFromArgb(themeConfig.neutralVariant)"
           aria-label="Neutral Variant Color"
           type="color"
-          @input="theme.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="
+            themeConfig.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)
+          "
         />
 
-        <template v-for="(extendedColor, idx) in theme.extendedColors" :key="idx">
+        <template v-for="(extendedColor, idx) in themeConfig.extendedColors" :key="idx">
           <input
             :value="hexFromArgb(extendedColor.value)"
             aria-label="Extended Color"
@@ -110,17 +112,17 @@ function updatePrimary(event: Event) {
 
         <label>
           <span>Brightness Variants</span>
-          <input v-model="theme.brightnessVariants" type="checkbox" />
+          <input v-model="themeConfig.brightnessVariants" type="checkbox" />
         </label>
 
         <label>
           <span>Is Dark</span>
-          <input v-model="theme.isDark" type="checkbox" />
+          <input v-model="themeConfig.isDark" type="checkbox" />
         </label>
 
         <label>
           <span>Style</span>
-          <select v-model="theme.style">
+          <select v-model="themeConfig.style">
             <option v-for="style in listPaletteStyles()" :key="style" :value="style">
               {{ style }}
             </option>
@@ -128,27 +130,24 @@ function updatePrimary(event: Event) {
         </label>
 
         <label>
-          <span>Contrast</span>
-          <input v-model="theme.contrastLevel" max="1" min="-1" step="0.1" type="range" />
+          <span>Contrast Level</span>
+          <input
+            v-model.number="themeConfig.contrastLevel"
+            max="1"
+            min="-1"
+            step="0.1"
+            type="range"
+          />
         </label>
 
         <label>
-          <span>Is Extended Fidelity</span>
-          <input v-model="theme.isExtendedFidelity" type="checkbox" />
-        </label>
-
-        <label>
-          <span>With Amoled</span>
-          <input v-model="theme.withAmoled" type="checkbox" />
-        </label>
-
-        <!-- sync -->
-        <label>
-          <span>Sync Primary with Seed</span>
-          <input v-model="syncPrimaryWithSeed" type="checkbox" />
+          <span> Bidirectional Sync </span>
+          <input v-model="isPrimaryDrivenBySeed" type="checkbox" />
         </label>
       </form>
     </div>
+
+    <pre>{{ themeColors }}</pre>
 
     <div
       :style="{
@@ -158,7 +157,7 @@ function updatePrimary(event: Event) {
       }"
     >
       <div
-        v-for="(value, key, index) in colorScheme"
+        v-for="(value, key, index) in themeColors"
         :key="index"
         :style="{
           backgroundColor: hexFromArgb(value),
@@ -169,9 +168,7 @@ function updatePrimary(event: Event) {
       </div>
     </div>
 
-    <div class="two-col">
-      <pre>{{ colorScheme }}</pre>
-    </div>
+    <div class="two-col"></div>
   </div>
 </template>
 

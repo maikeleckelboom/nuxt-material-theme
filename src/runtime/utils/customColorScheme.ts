@@ -18,9 +18,7 @@ export function toCustomColorScheme(
   options?: { isDark: boolean; }
 ): Record<string, number> {
   const tokens: Record<string, number> = {}
-  const {
-    color: { name }
-  } = colorGroup
+  const name = colorGroup.color.name
 
   // Process main colors for the selected theme (dark or light)
   const mainEntries = options?.isDark ? colorGroup.dark : colorGroup.light

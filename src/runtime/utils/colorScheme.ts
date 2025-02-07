@@ -7,7 +7,7 @@ import {
 } from '@material/material-color-utilities'
 import { toValue } from 'vue'
 import type { ExtendedColor, ModifyColorScheme } from '../../types/module'
-import { toCustomColorScheme } from '../../runtime/utils/customColorScheme'
+import { toCustomColorScheme } from './customColorScheme'
 import { harmonize } from './blend'
 
 export function colorsFromDynamicScheme(
