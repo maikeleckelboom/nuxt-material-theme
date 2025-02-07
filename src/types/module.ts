@@ -44,12 +44,8 @@ export type MaterialThemeOptions = DynamicSchemeOptions & {
   brightnessVariants?: boolean
 }
 
-export type ModifyColorScheme<T = number> = (
-  scheme: Record<string, number>
-) => Record<string, T>
-
-export type ModifyColorSchemeOptions = {
-  modifyColorScheme?: ModifyColorScheme
-}
+export type ModifyColorScheme<T = object> = <S extends Record<string, number | string>>(
+  scheme: S
+) => S & T;
 
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>

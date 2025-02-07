@@ -121,6 +121,7 @@ export function getRatioOfTones(argbColor1: number, argbColor2: number): number 
   return Contrast.ratioOfTones(tone1, tone2)
 }
 
+
 export function getBestContrastRatio(argbColor: number) {
   const contrastColor = getContrastColor(argbColor)
   return getRatioOfTones(argbColor, contrastColor)

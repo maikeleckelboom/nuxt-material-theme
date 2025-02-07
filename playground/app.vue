@@ -1,44 +1,59 @@
 <script lang="ts" setup>
 import {
   argbFromHex,
-  type DynamicColor,
+  type CustomColor,
   hexFromArgb,
-  MaterialDynamicColors
+  themeFromSourceColor
 } from '@material/material-color-utilities'
+import { getContrastColor } from '../src/runtime/utils/contrast'
+import type { ExtendedColor } from '../src/types/module'
+import { useMaterialThemeBuilder } from '../src/runtime/composables/useMaterialTheme'
 
 const theme = useRuntimeConfig().public.materialTheme
 
-const { colorScheme, dynamicScheme: scheme } = useMaterialTheme(theme)
+const { colorScheme, syncPrimaryWithSeed, ignoreWatcher } = useMaterialThemeBuilder(theme)
+
+function normalizeExtendedColors(extendedColors?: ExtendedColor[]): CustomColor[] {
+  return (extendedColors || []).map((color) => ({
+    name: color.name,
+    value: color.value,
+    blend: Boolean(color.blend || theme.isExtendedFidelity)
+  }))
+}
+
+onMounted(() => {
+  const generatedTheme = themeFromSourceColor(
+    theme.seedColor,
+    normalizeExtendedColors(theme.extendedColors)
+  )
+  console.log('theme', generatedTheme)
+})
 
 useHead({
   title: 'Material Theme Playground',
   style: [
     {
       textContent: computed(
-        () => `
-        body {
+        () => `body {
           background-color: ${hexFromArgb(colorScheme.value.background)};
-        }
-      `
+          color: ${hexFromArgb(colorScheme.value.onBackground)};
+        }`
       )
     }
   ]
 })
 
-function getContrast(value: number, key: string) {
-  if (key in MaterialDynamicColors) {
-    const dynamicColor = MaterialDynamicColors[
-      key as keyof typeof MaterialDynamicColors
-    ] as DynamicColor
-
-    // todo: Reason about how this is not the way to get contrasting color role.
-    if (dynamicColor.isBackground && dynamicColor.toneDeltaPair) {
-      const deltaPair = dynamicColor.toneDeltaPair(scheme.value)
-      return hexFromArgb(deltaPair.roleB.getArgb(scheme.value))
-    }
+function updatePrimary(event: Event) {
+  const target = event.target as HTMLInputElement
+  const value = argbFromHex(target.value)
+  if (syncPrimaryWithSeed.value) {
+    ignoreWatcher(() => {
+      theme.seedColor = value
+      theme.primary = value
+    })
+  } else {
+    theme.primary = value
   }
-
-  return hexFromArgb(getContrastColor(value))
 }
 </script>
 
@@ -46,8 +61,6 @@ function getContrast(value: number, key: string) {
   <div class="main-grid">
     <div>
       <h2>Material Theme</h2>
-      <pre>dynamicColor</pre>
-      <pre></pre>
       <form class="color-form">
         <input
           :value="hexFromArgb(theme.seedColor)"
@@ -59,7 +72,7 @@ function getContrast(value: number, key: string) {
           :value="hexFromArgb(theme.primary)"
           aria-label="config.primary Color"
           type="color"
-          @input="theme.primary = argbFromHex(($event.target as HTMLInputElement).value)"
+          @input="updatePrimary"
         />
         <input
           :value="hexFromArgb(theme.secondary)"
@@ -128,6 +141,12 @@ function getContrast(value: number, key: string) {
           <span>With Amoled</span>
           <input v-model="theme.withAmoled" type="checkbox" />
         </label>
+
+        <!-- sync -->
+        <label>
+          <span>Sync Primary with Seed</span>
+          <input v-model="syncPrimaryWithSeed" type="checkbox" />
+        </label>
       </form>
     </div>
 
@@ -143,7 +162,7 @@ function getContrast(value: number, key: string) {
         :key="index"
         :style="{
           backgroundColor: hexFromArgb(value),
-          color: getContrast(value, key)
+          color: hexFromArgb(getContrastColor(value))
         }"
       >
         <span>{{ key }}</span>

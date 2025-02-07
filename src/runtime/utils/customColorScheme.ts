@@ -1,6 +1,5 @@
 import type { CustomColorGroup } from '@material/material-color-utilities'
 import { camelCase } from 'change-case'
-import type { ModifyColorScheme } from '~/src/types/module'
 
 function formatCustomColorName(
   blueprint: string,
@@ -16,7 +15,7 @@ function formatCustomColorName(
 
 export function toCustomColorScheme(
   colorGroup: CustomColorGroup,
-  options?: { isDark: boolean; modifyColorScheme?: ModifyColorScheme }
+  options?: { isDark: boolean; }
 ): Record<string, number> {
   const tokens: Record<string, number> = {}
   const {

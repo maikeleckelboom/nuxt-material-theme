@@ -2,7 +2,6 @@ import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nux
 import { argbFromHex } from '@material/material-color-utilities'
 import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/module'
 import { createDynamicScheme } from './runtime/utils/dynamicScheme'
-import { useDynamicScheme } from '#imports'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {

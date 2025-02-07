@@ -1,63 +1,56 @@
-import { computed, useId } from 'vue'
-import { watchIgnorable } from '@vueuse/core'
+import { computed, shallowRef, useId } from 'vue'
+import { watchTriggerable } from '@vueuse/core'
 import type { DynamicScheme } from '@material/material-color-utilities'
 import { useState } from 'nuxt/app'
 import { toColorScheme } from '../utils/colorScheme'
-import type { MaterialThemeOptions, ModifyColorScheme } from '../../types/module'
-import { createDynamicScheme } from '../../runtime/utils/dynamicScheme'
+import type { MaterialThemeOptions } from '../../types/module'
+import { createDynamicScheme } from '../utils/dynamicScheme'
 
-/**
- * A Material Theme that adapts to the given seed color and the provided custom colors.
- *
- * @param theme - The Material Theme options
- * @param options - The options to modify the color scheme
- */
-export function useMaterialTheme(
-  theme: MaterialThemeOptions,
-  options?: {
-    modifyColorScheme?: ModifyColorScheme
-  }
-) {
-  const uuid = useId()
-  const dynamicScheme = useState<DynamicScheme>(uuid)
+export function useMaterialThemeBuilder(theme: MaterialThemeOptions) {
+  const stateId = useId()
+  const dynamicScheme = useState<DynamicScheme>(stateId)
 
-  const propsToWatch = [
-    'primary',
-    'isDark',
-    'contrastLevel',
-    'style',
-    'secondary',
-    'tertiary',
-    'neutral',
-    'neutralVariant'
-  ] as const
+  const isBidirectionalSyncEnabled = shallowRef<boolean>(false)
 
-  const { ignoreUpdates } = watchIgnorable(
-    propsToWatch.map((prop) => () => theme[prop]),
+  const syncPrimaryWithSeed = shallowRef<boolean>(false)
+
+  const { ignoreUpdates: ignoreWatcher } = watchTriggerable(
+    () => [
+      theme.primary,
+      theme.isDark,
+      theme.contrastLevel,
+      theme.style,
+      theme.secondary,
+      theme.tertiary,
+      theme.neutral,
+      theme.neutralVariant
+    ],
     () => {
+      console.log('theme changed')
       dynamicScheme.value = createDynamicScheme(theme)
     },
     { immediate: true }
   )
 
-  const { ignoreUpdates: ignoreSeedUpdates } = watchIgnorable(
+  watchTriggerable(
     () => theme.seedColor,
     () => {
+      console.log('seedColor changed')
       const scheme = createDynamicScheme({
         seedColor: Number(theme.seedColor || 0),
         isDark: theme.isDark,
         style: theme.style,
         contrastLevel: theme.contrastLevel
       })
-
-      ignoreUpdates(() => {
-        theme.primary = scheme.primaryPaletteKeyColor
+      ignoreWatcher(() => {
+        theme.primary = syncPrimaryWithSeed.value
+          ? scheme.sourceColorArgb
+          : scheme.primaryPaletteKeyColor
         theme.secondary = scheme.secondaryPaletteKeyColor
         theme.tertiary = scheme.tertiaryPaletteKeyColor
         theme.neutral = scheme.neutralPaletteKeyColor
         theme.neutralVariant = scheme.neutralVariantPaletteKeyColor
       })
-
       dynamicScheme.value = scheme
     }
   )
@@ -68,15 +61,15 @@ export function useMaterialTheme(
       isExtendedFidelity: theme.isExtendedFidelity,
       isAmoled: theme.withAmoled,
       extendedColors: theme.extendedColors,
-      brightnessVariants: theme.brightnessVariants,
-      modifyColorScheme: options?.modifyColorScheme
+      brightnessVariants: theme.brightnessVariants
     })
   })
 
   return {
     dynamicScheme,
     colorScheme,
-    ignoreSeedUpdates,
-    ignoreUpdates
+    syncPrimaryWithSeed,
+    isBidirectionalSyncEnabled,
+    ignoreWatcher
   }
 }
