@@ -1,27 +1,23 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 import { getContrastColor } from '../../src/runtime/utils/contrast'
-import { getAvailablePaletteStyles } from '../../src/runtime/utils/palette-style'
+import { getPaletteStyles } from '../../src/runtime/utils/palette-style'
+
+definePageMeta({
+  title: 'Playground',
+  description: 'Playground for testing Material Theme'
+})
 
 const state = useRuntimeConfig().public.materialTheme
 
 const brightnessVariants = ref(false)
 
-const { colorScheme, isPrimaryDrivenBySeed, ignoreUpdates } = useMaterialTheme(state, { brightnessVariants })
-
-useHead({
-  title: 'Material Theme Playground',
-  style: [
-    {
-      textContent: computed(
-        () => `body {
-          background-color: ${hexFromArgb(colorScheme.value.background)};
-          color: ${hexFromArgb(colorScheme.value.onBackground)};
-        }`
-      )
-    }
-  ]
-})
+const {
+  colorScheme,
+  isPrimaryDrivenBySeed,
+  ignoreUpdates,
+  setSeed
+} = useMaterialTheme(state, { brightnessVariants })
 
 function updatePrimaryColor(event: Event) {
   const target = event.target as HTMLInputElement
@@ -36,14 +32,55 @@ function updatePrimaryColor(event: Event) {
   }
 }
 
-const paletteStyles = getAvailablePaletteStyles()
+const paletteStyles = getPaletteStyles()
+
+const file = ref<File | null>(null)
+
+function onFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (files && files.length) {
+    file.value = files[0]
+  }
+}
+
+watch(file, (file) => {
+  if (!file) return
+  setSeed(file)
+})
+
+const wallpapers = Array.from({ length: 3 }, (_, i) => `/wallpapers/00${i + 1}.jpg`)
+const wallpaperImages = useTemplateRef<HTMLImageElement[]>('images')
+
+const selectedWallpaper = ref<string | null>(null)
+
+watch(selectedWallpaper, async (wallpaper) => {
+  const image = wallpaperImages.value?.find((img) => wallpaper && img.src.includes(wallpaper))
+  if (image) {
+    const bitmapSource = await createImageBitmap(image)
+    await setSeed(bitmapSource)
+    wallpaperImages.value?.forEach((img) => {
+      img === image
+        ? img.classList.add('selected')
+        : img.classList.remove('selected')
+    })
+  }
+})
 </script>
 
 <template>
   <div class="main-grid">
     <div>
       <h2>Material Theme</h2>
+
+      <div class="wallpapers-container">
+        <div v-for="(wallpaper, i) in wallpapers" :key="i" @click="selectedWallpaper = wallpaper">
+          <img ref="wallpaperImages" :src="wallpaper" alt="wallpaper" class="object-cover" />
+        </div>
+      </div>
+
       <form class="color-form">
+        <input type="file" @change="onFileChange" />
         <input
           :value="hexFromArgb(state.seedColor)"
           aria-label="Seed Color"
@@ -82,7 +119,6 @@ const paletteStyles = getAvailablePaletteStyles()
             state.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)
           "
         />
-
         <template v-for="(extendedColor, i) in state.extendedColors" :key="i">
           <input
             :value="hexFromArgb(extendedColor.value)"
@@ -91,7 +127,6 @@ const paletteStyles = getAvailablePaletteStyles()
             @input="extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)"
           />
         </template>
-
         <label>
           <span>Brightness Variants</span>
           <input v-model="brightnessVariants" type="checkbox" />
@@ -101,7 +136,6 @@ const paletteStyles = getAvailablePaletteStyles()
           <span>Is Dark</span>
           <input v-model="state.isDark" type="checkbox" />
         </label>
-
         <label>
           <span>Style</span>
           <select v-model="state.style">
@@ -158,6 +192,26 @@ const paletteStyles = getAvailablePaletteStyles()
   height: 2rem;
   border-radius: 4px;
   display: block;
+}
+
+.wallpapers-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.5rem;
+  align-items: center;
+
+  img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+
+    &.selected {
+      border: 2px solid #000;
+    }
+  }
 }
 
 .main-grid {

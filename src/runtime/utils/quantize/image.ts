@@ -28,3 +28,13 @@ export function pixelsFromImageData(imageData: ImageData): number[] {
 
   return pixels
 }
+
+export async function fetchImageBitmap(source: string): Promise<ImageBitmap> {
+  if (!(source.startsWith('http') || source.startsWith('data:'))) {
+    throw new Error('Invalid seed source')
+  }
+
+  const response = await fetch(source)
+  const blob = await response.blob()
+  return createImageBitmap(blob)
+}

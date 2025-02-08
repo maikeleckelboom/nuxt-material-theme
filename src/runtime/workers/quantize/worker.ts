@@ -1,8 +1,8 @@
-import { getDataFromImageSource, pixelsFromImageData } from './utils/image'
-import { quantize } from './utils/quantization'
-import { score } from './utils/scoring'
-import type { QuantizeWorkerEvent } from './types/events'
+import { getDataFromImageSource, pixelsFromImageData } from '../../utils/quantize/image'
+import { quantize } from '../../utils/quantize'
+import { score } from '../../utils/quantize/score'
 import { isStartEvent } from './guards'
+import type { QuantizeWorkerEvent } from './types'
 
 if (typeof self !== 'undefined') {
   self.addEventListener('message', async (event: QuantizeWorkerEvent) => {

@@ -1,5 +1,5 @@
 import { customColor, DynamicColor, DynamicScheme, MaterialDynamicColors } from '@material/material-color-utilities'
-import type { ExtendedColor, MaterialTheme } from '../../../types/theme'
+import type { ExtendedColor, MaterialTheme } from '../../../types'
 import { colorSchemeFromCustomColorGroup } from './custom'
 
 export function extractColorsFromDynamicScheme(

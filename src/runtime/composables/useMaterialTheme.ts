@@ -1,8 +1,10 @@
-import type { MaterialTheme, MaterialThemeOptions } from '../../types/theme'
-import { createMaterialTheme} from '../utils/theme'
-import { colorSchemeFromTheme } from '../utils/color-scheme'
-
 import { computed, type MaybeRefOrGetter, shallowRef, toValue, watch } from 'vue'
+import type { MaterialTheme, MaterialThemeOptions } from '../../types'
+import { createMaterialTheme } from '../utils/theme'
+import { colorSchemeFromTheme } from '../utils/color-scheme'
+import { fetchImageBitmap } from '../utils/quantize/image'
+import { createQuantizeWorker } from '../workers/quantize'
+import { isDoneEvent } from '../workers/quantize/guards'
 import { watchIgnorable } from '@vueuse/core'
 
 export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptions: {
@@ -56,12 +58,40 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     brightnessVariants: toValue(colorSchemeOptions.brightnessVariants)
   }))
 
+  async function setSeed(seed: number | string | ImageBitmapSource) {
+    const worker = createQuantizeWorker()
+
+    const quantizeAndSetSeed = async (source: ImageBitmapSource) => {
+      worker.postMessage({ type: 'start', source, desired: 1 })
+      worker.onmessage = (event) => {
+        if (isDoneEvent(event)) {
+          const { rankedSuggestions } = event.data
+          const [seedColor] = rankedSuggestions
+          options.seedColor = seedColor
+          worker.terminate()
+        }
+      }
+    }
+
+    if (typeof seed === 'string' && (seed.startsWith('http') || seed.startsWith('data:') || seed.startsWith('blob:'))) {
+      const source = await fetchImageBitmap(seed)
+      await quantizeAndSetSeed(source)
+    } else if (seed instanceof ImageBitmap) {
+      await quantizeAndSetSeed(seed)
+    } else if (typeof seed === 'number') {
+      setSeedColor(seed)
+    } else {
+      throw new Error('Invalid seed source')
+    }
+  }
+
   return {
     theme,
     scheme,
     colorScheme,
     isPrimaryDrivenBySeed,
+    ignoreUpdates,
     setSeedColor,
-    ignoreUpdates
+    setSeed
   }
 }

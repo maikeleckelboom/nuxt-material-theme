@@ -3,7 +3,7 @@ import type {
   QuantizeStartEvent,
   QuantizeProgressEvent,
   QuantizeDoneEvent
-} from './types/events'
+} from './types'
 
 export function isStartEvent(event: QuantizeWorkerEvent): event is QuantizeStartEvent {
   return event.data.type === 'start'

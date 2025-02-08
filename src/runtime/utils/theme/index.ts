@@ -1,10 +1,6 @@
 import { customColor, TonalPalette } from '@material/material-color-utilities'
 import { createDynamicScheme } from '../scheme'
-import type { MaterialThemeOptions } from '../../../types/theme'
-import type { MaterialTheme } from '../../../types/theme'
-
-
-
+import type { MaterialThemeOptions, MaterialTheme } from '../../../types'
 export function createMaterialTheme(options: MaterialThemeOptions): MaterialTheme {
   const {
     primary,

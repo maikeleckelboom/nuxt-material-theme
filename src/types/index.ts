@@ -1,4 +1,4 @@
-import type { PaletteStyle } from './paletteStyle'
+import type { PaletteStyle } from '../runtime/utils/palette-style'
 import { type CustomColorGroup, DynamicScheme, TonalPalette } from '@material/material-color-utilities'
 
 export interface ExtendedColor {
@@ -60,7 +60,6 @@ export interface MaterialTheme {
   }
   customColors: CustomColorGroup[]
 }
-
 
 // export type ModifyColorScheme<T = object> = <S extends Record<string, number | string>>(
 //   scheme: S

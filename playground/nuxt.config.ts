@@ -5,7 +5,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
-    // todo: change to seed
     seedColor: argbFromHex('#ff8000'),
     extendedColors: [
       {
