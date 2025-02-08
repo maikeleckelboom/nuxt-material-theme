@@ -1,8 +1,8 @@
 import { DynamicScheme, TonalPalette } from '@material/material-color-utilities'
-import type { DynamicSchemeOptions } from '../../types/module'
-import { paletteStyleScheme, type PaletteStyleScheme } from './paletteStyle'
-import { paletteStyleVariant } from './constants'
-import { toHct } from './hct'
+import type { DynamicSchemeOptions } from '../../../types/theme'
+import { getPaletteScheme, type PaletteScheme } from '../palette-style'
+import { mapPaletteStyleToInternalVariant } from '../palette-style/constants'
+import { toHct } from '../hct'
 
 /**
  * Determines if options are using a seed-based approach by checking for a source color
@@ -25,7 +25,7 @@ function hasSeedSourceColor(options: DynamicSchemeOptions): boolean {
  * Creates a tonal palette from the given color or uses the fallback if no color is provided.
  */
 function generateTonalPalette(color: number | undefined, fallback: TonalPalette): TonalPalette {
-  return color ? TonalPalette.fromInt(color) : fallback
+  return typeof color === 'number' ? TonalPalette.fromInt(color) : fallback
 }
 
 /**
@@ -36,14 +36,14 @@ export function createDynamicScheme(options: DynamicSchemeOptions): DynamicSchem
 
   const baseColorArgb = Number(options.seedColor || options.primary)
 
-  const Scheme: PaletteStyleScheme = paletteStyleScheme(options.style)
+  const Scheme: PaletteScheme = getPaletteScheme(options.style)
   const scheme = new Scheme(toHct(baseColorArgb), isDark, contrastLevel)
 
   if (hasSeedSourceColor(options)) {
     return scheme
   }
 
-  const defaultPalettes = {
+  const core = {
     a1: scheme.primaryPalette,
     a2: scheme.secondaryPalette,
     a3: scheme.tertiaryPalette,
@@ -55,11 +55,11 @@ export function createDynamicScheme(options: DynamicSchemeOptions): DynamicSchem
     sourceColorArgb: baseColorArgb,
     isDark,
     contrastLevel: contrastLevel,
-    variant: paletteStyleVariant(options.style),
-    primaryPalette: generateTonalPalette(options.primary, defaultPalettes.a1),
-    secondaryPalette: generateTonalPalette(options.secondary, defaultPalettes.a2),
-    tertiaryPalette: generateTonalPalette(options.tertiary, defaultPalettes.a3),
-    neutralPalette: generateTonalPalette(options.neutral, defaultPalettes.n1),
-    neutralVariantPalette: generateTonalPalette(options.neutralVariant, defaultPalettes.n2)
+    variant: mapPaletteStyleToInternalVariant(options.style),
+    primaryPalette: generateTonalPalette(options.primary, core.a1),
+    secondaryPalette: generateTonalPalette(options.secondary, core.a2),
+    tertiaryPalette: generateTonalPalette(options.tertiary, core.a3),
+    neutralPalette: generateTonalPalette(options.neutral, core.n1),
+    neutralVariantPalette: generateTonalPalette(options.neutralVariant, core.n2)
   })
 }

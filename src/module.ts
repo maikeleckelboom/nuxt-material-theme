@@ -1,7 +1,7 @@
 import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { argbFromHex } from '@material/material-color-utilities'
-import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/module'
-import { createDynamicScheme } from './runtime/utils/dynamicScheme'
+import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types/theme'
+import { createDynamicScheme } from './runtime/utils/scheme'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
@@ -40,9 +40,6 @@ export default defineNuxtModule<MaterialThemeOptions>({
     style: 'TonalSpot',
     contrastLevel: 0,
     isDark: false,
-    isAmoled: false,
-    isExtendedFidelity: false,
-    brightnessVariants: false
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)

@@ -1,11 +1,10 @@
 import type { PaletteStyle } from './paletteStyle'
-import type { ContrastLevel } from './contrastLevel'
+import { type CustomColorGroup, DynamicScheme, TonalPalette } from '@material/material-color-utilities'
 
 export interface ExtendedColor {
   name: string
   value: number
   blend?: boolean
-  description?: string
 }
 
 export interface CorePaletteColors {
@@ -19,7 +18,7 @@ export interface CorePaletteColors {
 
 export interface BaseDynamicSchemeOptions extends CorePaletteColors {
   style?: PaletteStyle
-  contrastLevel?: ContrastLevel
+  contrastLevel?: number
   isDark?: boolean
 }
 
@@ -38,14 +37,32 @@ export type DynamicSchemeOptions =
   | SeedColorDynamicSchemeOptions
 
 export type MaterialThemeOptions = DynamicSchemeOptions & {
-  isAmoled?: boolean
-  isExtendedFidelity?: boolean
   extendedColors?: ExtendedColor[]
-  brightnessVariants?: boolean
 }
 
-export type ModifyColorScheme<T = object> = <S extends Record<string, number | string>>(
-  scheme: S
-) => S & T;
-
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>
+
+export interface MaterialTheme {
+  seedColor: number
+  contrastLevel: number
+  style: PaletteStyle
+  schemes: {
+    light: DynamicScheme
+    dark: DynamicScheme
+  }
+  palettes: {
+    primary: TonalPalette
+    secondary: TonalPalette
+    tertiary: TonalPalette
+    neutral: TonalPalette
+    neutralVariant: TonalPalette
+    error: TonalPalette
+  }
+  customColors: CustomColorGroup[]
+}
+
+
+// export type ModifyColorScheme<T = object> = <S extends Record<string, number | string>>(
+//   scheme: S
+// ) => S & T;
+

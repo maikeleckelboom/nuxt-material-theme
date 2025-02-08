@@ -1,68 +1,67 @@
-import { computed, watch, shallowRef } from 'vue'
-import {  watchIgnorable } from '@vueuse/core'
-import type { DynamicScheme } from '@material/material-color-utilities'
-import { toColorScheme } from '../utils/colorScheme'
-import type { MaterialThemeOptions } from '../../types/module'
-import { createDynamicScheme } from '../utils/dynamicScheme'
+import type { MaterialTheme, MaterialThemeOptions } from '../../types/theme'
+import { createMaterialTheme} from '../utils/theme'
+import { colorSchemeFromTheme } from '../utils/color-scheme'
 
-export function useMaterialThemeBuilder(theme: MaterialThemeOptions) {
-  const dynamicScheme = shallowRef<DynamicScheme>()
-  //
-  const isPrimaryDrivenBySeed = shallowRef<boolean>(false)
+import { computed, type MaybeRefOrGetter, shallowRef, toValue, watch } from 'vue'
+import { watchIgnorable } from '@vueuse/core'
+
+export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptions: {
+  brightnessVariants?: MaybeRefOrGetter<boolean>
+} = {}) {
+  const theme = shallowRef<MaterialTheme>(createMaterialTheme(options))
+  const isPrimaryDrivenBySeed = shallowRef<boolean>(true)
+
+  const scheme = computed(() => theme.value.schemes[options.isDark ? 'dark' : 'light'])
 
   const { ignoreUpdates } = watchIgnorable(
     () => [
-      theme.primary,
-      theme.isDark,
-      theme.contrastLevel,
-      theme.style,
-      theme.secondary,
-      theme.tertiary,
-      theme.neutral,
-      theme.neutralVariant
-    ],
-    () => {
-      dynamicScheme.value = createDynamicScheme(theme)
-    },
-    { immediate: true }
-  )
+      options.primary,
+      options.isDark,
+      options.contrastLevel,
+      options.style,
+      options.secondary,
+      options.tertiary,
+      options.neutral,
+      options.neutralVariant
+    ], () => {
+      theme.value = createMaterialTheme(options)
+    })
 
-  watch(
-    () => theme.seedColor,
-    () => {
-      const scheme = createDynamicScheme({
-        seedColor: Number(theme.seedColor || 0),
-        isDark: theme.isDark,
-        style: theme.style,
-        contrastLevel: theme.contrastLevel
-      })
-      ignoreUpdates(() => {
-        theme.primary = isPrimaryDrivenBySeed.value
-          ? scheme.sourceColorArgb
-          : scheme.primaryPaletteKeyColor
-        theme.secondary = scheme.secondaryPaletteKeyColor
-        theme.tertiary = scheme.tertiaryPaletteKeyColor
-        theme.neutral = scheme.neutralPaletteKeyColor
-        theme.neutralVariant = scheme.neutralVariantPaletteKeyColor
-      })
-      dynamicScheme.value = scheme
-    }
-  )
+  const setSeedColor = (seedColor: number) => {
+    theme.value = createMaterialTheme({
+      seedColor,
+      contrastLevel: options.contrastLevel,
+      style: options.style,
+      extendedColors: options.extendedColors
+    })
+  }
 
-  const colorScheme = computed(() => {
-    if (!dynamicScheme.value) return {}
-    return toColorScheme(dynamicScheme.value, {
-      isExtendedFidelity: theme.isExtendedFidelity,
-      isAmoled: theme.isAmoled,
-      extendedColors: theme.extendedColors,
-      brightnessVariants: theme.brightnessVariants,
+  watch(() => options.seedColor, () => {
+    if (typeof options.seedColor === 'undefined') return
+    setSeedColor(options.seedColor)
+    const scheme = theme.value.schemes[options.isDark ? 'dark' : 'light']
+    ignoreUpdates(() => {
+      options.primary = isPrimaryDrivenBySeed.value
+        ? scheme.sourceColorArgb
+        : scheme.primaryPaletteKeyColor
+      options.secondary = scheme.secondaryPaletteKeyColor
+      options.tertiary = scheme.tertiaryPaletteKeyColor
+      options.neutral = scheme.neutralPaletteKeyColor
+      options.neutralVariant = scheme.neutralVariantPaletteKeyColor
     })
   })
 
+  const colorScheme = computed(() => colorSchemeFromTheme(theme.value, {
+    isDark: options.isDark,
+    brightnessVariants: toValue(colorSchemeOptions.brightnessVariants)
+  }))
+
   return {
-    dynamicScheme,
+    theme,
+    scheme,
     colorScheme,
     isPrimaryDrivenBySeed,
+    setSeedColor,
     ignoreUpdates
   }
 }

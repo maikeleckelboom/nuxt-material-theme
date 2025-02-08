@@ -5,17 +5,19 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
+    // todo: change to seed
     seedColor: argbFromHex('#ff8000'),
     extendedColors: [
       {
         name: 'Forest Mist',
         value: argbFromHex('#4dd78b'),
+        blend: true
       },
       {
         name: 'Alien Purplish',
         value: argbFromHex('#ff00ff'),
+        blend: true
       }
     ],
-    brightnessVariants: true,
   }
 })
