@@ -13,7 +13,7 @@ const options = useRuntimeConfig().public.materialTheme
 
 const { $theme, $brightnessVariants } = useNuxtApp()
 
-const { theme, colorScheme, isPrimaryDrivenBySeed } = $theme
+const { colorScheme, isPrimaryDrivenBySeed } = $theme
 
 function updatePrimaryColor(event: Event) {
   const target = event.target as HTMLInputElement

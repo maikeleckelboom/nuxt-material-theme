@@ -14,18 +14,14 @@ export function extractColorsFromDynamicScheme(
       continue
     }
 
-    // Calculate brightness suffix if needed (e.g. "Light" or "Dark")
-    const brightnessSuffix = appendBrightnessSuffix
-      ? dynamicScheme.isDark ? 'Dark' : 'Light'
-      : ''
-
-    // Avoid adding suffix to palette colors to prevent duplication of static colors
+    // Avoid adding suffix to palette colors to prevent duplication
     const isPaletteColor = colorName.toLowerCase().includes('palette')
     if (appendBrightnessSuffix && isPaletteColor) {
       continue
     }
 
     // Generate final color name and store ARGB value
+    const brightnessSuffix = appendBrightnessSuffix ? dynamicScheme.isDark ? 'Dark' : 'Light' : ''
     const resolvedColorName = `${colorName}${brightnessSuffix}`
     colors[resolvedColorName] = ColorClass.getArgb(dynamicScheme)
   }
@@ -52,7 +48,6 @@ export function colorSchemeFromDynamicScheme(
   let extendedColors: ExtendedColor[] = []
   let opts: { brightnessVariants?: boolean } = {}
 
-  // Determine if the second argument is ExtendedColor[] or options
   if (Array.isArray(extendedColorsOrOptions)) {
     extendedColors = extendedColorsOrOptions
     opts = options ?? {}
