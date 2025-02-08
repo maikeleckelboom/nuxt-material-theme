@@ -1,14 +1,16 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import { hexFromArgb } from '@material/material-color-utilities'
-import { computed } from 'vue'
-import { useMaterialTheme } from '../composables/useMaterialTheme'
+import { computed, shallowRef } from 'vue'
+import { useMaterialTheme } from './composables/useMaterialTheme'
 import { useHead } from '@unhead/vue'
 import { kebabCase } from 'change-case'
 
 export default defineNuxtPlugin(({ $config }) => {
-  const config = $config.public.materialTheme
+  const options = $config.public.materialTheme
 
-  const { colorScheme } = useMaterialTheme(config)
+  const brightnessVariants = shallowRef<boolean>(false)
+
+  const theme = useMaterialTheme(options, { brightnessVariants })
 
   function cssVariablesFromColorScheme(colorScheme: Record<string, number>) {
     return Object.entries(colorScheme).reduce((acc, [key, value]) => {
@@ -20,8 +22,15 @@ export default defineNuxtPlugin(({ $config }) => {
     style: [
       {
         textContent: computed(
-          () => `:root {\n${cssVariablesFromColorScheme(colorScheme.value)}\n}`)
+          () => `:root {\n${cssVariablesFromColorScheme(theme.colorScheme.value)}\n}`)
       }
     ]
   })
+
+  return {
+    provide: {
+      theme,
+      brightnessVariants
+    }
+  }
 })

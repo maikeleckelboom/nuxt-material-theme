@@ -1,10 +1,13 @@
-export interface QuantizeStartData {
-  type: 'start'
-  source: ImageBitmapSource
+import type { ScoreOptions } from '../../utils/score'
+
+export interface QuantizeOptions extends ScoreOptions {
   maxColors?: number
-  filter?: boolean
-  desired?: number
-  fallbackColorARGB?: number
+  signal?: AbortSignal
+}
+
+export interface QuantizeStartData extends QuantizeOptions {
+  type: 'start'
+  image: ImageBitmap
 }
 
 export interface QuantizeDoneData {
@@ -13,20 +16,15 @@ export interface QuantizeDoneData {
   rankedSuggestions: [number, ...number[]]
 }
 
-export interface QuantizeProgressData {
-  type: 'progress'
-  progress: number
-}
-
 export type QuantizeStartEvent = MessageEvent<QuantizeStartData>
 
 export type QuantizeDoneEvent = MessageEvent<QuantizeDoneData>
 
-export type QuantizeProgressEvent = MessageEvent<QuantizeProgressData>
 
 export type QuantizeWorkerEvent =
   | QuantizeStartEvent
   | QuantizeDoneEvent
-  | QuantizeProgressEvent
+
+export type QuantizeWorkerData = QuantizeWorkerEvent['data']
 
 export type QuantizeResult = Pick<QuantizeDoneData, 'colorToCount' | 'rankedSuggestions'>

@@ -1,8 +1,8 @@
 import { DynamicScheme, TonalPalette } from '@material/material-color-utilities'
-import type { DynamicSchemeOptions } from '../../../types'
-import { getPaletteScheme, type PaletteScheme } from '../palette-style'
-import { mapPaletteStyleToInternalVariant } from '../palette-style'
-import { toHct } from '../hct'
+import type { DynamicSchemeOptions } from '../../types'
+import { getPaletteScheme, type PaletteScheme } from './palette-style'
+import { mapPaletteStyleToInternalVariant } from './palette-style'
+import { toHct } from './hct'
 
 /**
  * Determines if options are using a seed-based approach by checking for a source color

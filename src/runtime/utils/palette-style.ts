@@ -44,7 +44,8 @@ export function mapPaletteStyleToInternalVariant(
   defaultStyle: PaletteStyle = PALETTE_STYLES.TonalSpot
 ): number {
   const index = Object.values(PALETTE_STYLES).indexOf(style || defaultStyle)
-  return index === -1 ? 0 : index
+  if (index === -1) throw new Error(`Invalid palette style: ${style}`)
+  return index
 }
 
 /**
@@ -74,7 +75,7 @@ export function getPaletteScheme(
   style?: PaletteStyle,
   fallbackStyle: PaletteStyle = PALETTE_STYLES.TonalSpot
 ): PaletteScheme {
-  const scheme = paletteStyleToSchemeMap [style || fallbackStyle]
+  const scheme = paletteStyleToSchemeMap[style || fallbackStyle]
   if (!scheme) {
     throw new Error(`Invalid palette style: ${style}`)
   }

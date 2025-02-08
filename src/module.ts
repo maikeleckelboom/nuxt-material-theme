@@ -46,12 +46,11 @@ export default defineNuxtModule<MaterialThemeOptions>({
 
     addImportsDir(resolver.resolve('./runtime/composables'))
     addImportsDir(resolver.resolve('./runtime/utils'))
-    addImportsDir(resolver.resolve('./runtime/workers/quantize'))
 
-    // addPlugin(resolver.resolve('./runtime/plugins/payload/hct'))
-    // addPlugin(resolver.resolve('./runtime/plugins/payload/tonalPalette'))
-    // addPlugin(resolver.resolve('./runtime/plugins/payload/dynamicScheme'))
-    addPlugin(resolver.resolve('./runtime/plugins/plugin'))
+    addPlugin(resolver.resolve('./runtime/plugins/hct'))
+    addPlugin(resolver.resolve('./runtime/plugins/tonalPalette'))
+    addPlugin(resolver.resolve('./runtime/plugins/dynamicScheme'))
+    addPlugin(resolver.resolve('./runtime/plugin'))
 
     nuxt.hook('modules:done', async () => {
       nuxt.options.runtimeConfig.public.materialTheme = await initializeRuntimeConfig(options)

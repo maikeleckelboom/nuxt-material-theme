@@ -1,7 +1,7 @@
-import type { QuantizeWorkerEvent } from './types'
+import type { QuantizeWorkerData } from './types'
 
 export type QuantizeWorker = Omit<Worker, 'postMessage'> & {
-  postMessage(message: QuantizeWorkerEvent['data']): void
+  postMessage(message: QuantizeWorkerData): void
 }
 
 export function createQuantizeWorker(): QuantizeWorker {
