@@ -1,28 +1,19 @@
 import { argbFromLstar, Contrast, lstarFromArgb } from '@material/material-color-utilities'
 
 function findMaxContrastVariant(baseTone: number, direction: 'darker' | 'lighter'): number {
-  let low = direction === 'darker' ? 0 : baseTone
-  let high = direction === 'darker' ? baseTone : 100
+  const isDarker = direction === 'darker'
+  let [low, high] = isDarker ? [0, baseTone] : [baseTone, 100]
   let bestTone = baseTone
 
-  // Binary search for max contrast within valid range
   while (low <= high) {
     const mid = Math.round((low + high) / 2)
     const ratio = Contrast.ratioOfTones(baseTone, mid)
 
     if (ratio > 1) {
       bestTone = mid
-      if (direction === 'darker') {
-        high = mid - 1
-      } else {
-        low = mid + 1
-      }
+      isDarker ? (high = mid - 1) : (low = mid + 1)
     } else {
-      if (direction === 'darker') {
-        low = mid + 1
-      } else {
-        high = mid - 1
-      }
+      isDarker ? (low = mid + 1) : (high = mid - 1)
     }
   }
 
@@ -35,34 +26,32 @@ function selectOptimalContrast(
   darkTone: number,
   lightTone: number
 ): number {
-  if (darkContrast > lightContrast) return argbFromLstar(darkTone)
-  if (lightContrast > darkContrast) return argbFromLstar(lightTone)
-  return argbFromLstar(darkTone)
+  return argbFromLstar(darkContrast >= lightContrast ? darkTone : lightTone)
 }
 
-export function getContrastColor(argb: number): number {
-  // Calculate base tone from input color
-  const BASE_TONE = Math.min(Math.max(lstarFromArgb(argb), 0), 100)
+export function contrastColor(color: number): number {
+  const BASE_TONE = Math.min(Math.max(lstarFromArgb(color), 0), 100)
+  const [darkestTone, lightestTone] = (['darker', 'lighter'] as const)
+    .map(dir => findMaxContrastVariant(BASE_TONE, dir))
 
-  // Binary search for maximum achievable contrast in both directions
-  const darkestPossible = findMaxContrastVariant(BASE_TONE, 'darker')
-  const lightestPossible = findMaxContrastVariant(BASE_TONE, 'lighter')
-
-  // Calculate actual contrast ratios using the proper formula
-  const darkContrast = Contrast.ratioOfTones(BASE_TONE, darkestPossible)
-  const lightContrast = Contrast.ratioOfTones(BASE_TONE, lightestPossible)
-
-  // Select best contrast with preference for dark-on-light when equal
-  return selectOptimalContrast(darkContrast, lightContrast, darkestPossible, lightestPossible)
+  return selectOptimalContrast(
+    Contrast.ratioOfTones(BASE_TONE, darkestTone),
+    Contrast.ratioOfTones(BASE_TONE, lightestTone),
+    darkestTone,
+    lightestTone
+  )
 }
 
-export function getRatioOfTones(argbColor1: number, argbColor2: number): number {
-  const tone1 = lstarFromArgb(argbColor1)
-  const tone2 = lstarFromArgb(argbColor2)
+export function ratioOfTones(color1: number, color2: number): number {
+  const tone1 = lstarFromArgb(color1)
+  const tone2 = lstarFromArgb(color2)
   return Contrast.ratioOfTones(tone1, tone2)
 }
 
-export function getContrastRatio(color: number) {
-  const contrastColor = getContrastColor(color)
-  return Math.floor(getRatioOfTones(color, contrastColor) * 100) / 100
+export function contrastRatio(color1: number, color2: number): number {
+  return Math.floor(ratioOfTones(color1, color2) * 100) / 100
+}
+
+export function maxContrastRatio(color: number): number {
+  return Math.floor(ratioOfTones(color, contrastColor(color)) * 100) / 100
 }

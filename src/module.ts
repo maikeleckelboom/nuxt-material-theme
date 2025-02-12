@@ -1,7 +1,7 @@
 import { addImportsDir, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { argbFromHex } from '@material/material-color-utilities'
 import type { MaterialThemeOptions, MaterialThemeRuntimeOptions } from './types'
-import { createDynamicScheme } from './runtime/utils/scheme'
+import { createDynamicScheme } from './runtime/utils/dynamic-scheme'
 
 declare module '@nuxt/schema' {
   interface NuxtOptions {
@@ -13,9 +13,9 @@ declare module '@nuxt/schema' {
   }
 }
 
-async function initializeRuntimeConfig(options: MaterialThemeOptions) {
+async function initializeRuntimeConfig(options: MaterialThemeOptions, defaultColor: string = '#00dc82'): Promise<MaterialThemeRuntimeOptions> {
   if (!options.seedColor) {
-    options.seedColor = options.primary || argbFromHex('#00dc82')
+    options.seedColor = options.primary || argbFromHex(defaultColor)
   }
 
   const dynamicScheme = createDynamicScheme(options)
@@ -29,6 +29,7 @@ async function initializeRuntimeConfig(options: MaterialThemeOptions) {
   return <MaterialThemeRuntimeOptions>options
 }
 
+
 export default defineNuxtModule<MaterialThemeOptions>({
   meta: {
     name: 'nuxt-material-theme',
@@ -39,7 +40,10 @@ export default defineNuxtModule<MaterialThemeOptions>({
     extendedColors: [],
     style: 'TonalSpot',
     contrastLevel: 0,
-    isDark: false
+    isDark: false,
+    config: {
+      stateId: 'theme'
+    }
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
-import { getContrastColor } from '../../src/runtime/utils/contrast'
+import { contrastColor } from '../../src/runtime/utils/contrast'
 import { getPaletteStyles } from '../../src/runtime/utils/palette-style'
-import { fetchImageBitmap } from '../../src/runtime/utils/image'
+import { useMaterialTheme } from '#imports'
 
 definePageMeta({
   title: 'Playground',
@@ -11,15 +11,15 @@ definePageMeta({
 
 const options = useRuntimeConfig().public.materialTheme
 
-const { $theme, $brightnessVariants } = useNuxtApp()
-
-const { colorScheme, isPrimaryDrivenBySeed } = $theme
+const brightnessVariants = shallowRef<boolean>(false)
+const isPrimaryDrivenBySeed =  shallowRef<boolean>(false)
+const theme = useMaterialTheme(options, { brightnessVariants, isPrimaryDrivenBySeed })
 
 function updatePrimaryColor(event: Event) {
   const target = event.target as HTMLInputElement
   const value = argbFromHex(target.value)
   if (isPrimaryDrivenBySeed.value) {
-    $theme.ignoreUpdates(() => {
+    theme.ignoreUpdates(() => {
       options.seedColor = value
       options.primary = value
     })
@@ -31,9 +31,7 @@ function updatePrimaryColor(event: Event) {
 const paletteStyles = getPaletteStyles()
 
 onMounted(() => {
-  fetchImageBitmap('https://i.ibb.co/GRzh5nV/Cloudtion-Example.jpg').then((bitmap) => {
-    $theme.applyImage(bitmap)
-  })
+  theme.apply('https://i.ibb.co/GRzh5nV/Cloudtion-Example.jpg')
 })
 </script>
 
@@ -90,7 +88,7 @@ onMounted(() => {
       </label>
       <label>
         <span>Brightness Variants</span>
-        <input v-model="$brightnessVariants" type="checkbox" />
+        <input v-model="brightnessVariants" type="checkbox" />
       </label>
 
       <label>
@@ -120,7 +118,7 @@ onMounted(() => {
         <input v-model="isPrimaryDrivenBySeed" type="checkbox" />
       </label>
     </form>
-    <pre>{{ colorScheme }}</pre>
+    <pre>{{ theme.colorScheme }}</pre>
 
     <div
       :style="{
@@ -130,11 +128,11 @@ onMounted(() => {
       }"
     >
       <div
-        v-for="(value, key, index) in colorScheme"
+        v-for="(value, key, index) in theme.colorScheme.value"
         :key="index"
         :style="{
           backgroundColor: hexFromArgb(value),
-          color: hexFromArgb(getContrastColor(value))
+          color: hexFromArgb(contrastColor(value))
         }"
       >
         <span>{{ key }}</span>

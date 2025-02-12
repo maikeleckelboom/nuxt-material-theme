@@ -6,45 +6,41 @@ export function formatCustomColorName(
   customColorName: string,
   options: { suffix?: string } = {}
 ): string {
-  const blueprintParts = blueprint.split(/(?=[A-Z])/)
-
-  const processedParts = blueprintParts.map((part) => {
-    const lowerCasePart = part.toLowerCase()
-    return lowerCasePart.replace('color', camelCase(customColorName))
-  })
-
   const { suffix = '' } = options
-  const joinedString = processedParts.join('_') + suffix
+  const formattedName = blueprint
+    // Insert underscores before uppercase letters
+    .replace(/([A-Z])/g, '_$1')
+    .toLowerCase()
+    // Replace 'color' with customColorName in camelCase
+    .replace(/color/g, camelCase(customColorName))
 
-  return camelCase(joinedString)
+  return camelCase(formattedName + suffix)
 }
 
 export function colorSchemeFromCustomColorGroup(
   colorGroup: CustomColorGroup,
-  options: { isDark?: boolean; brightnessVariants?: boolean } = {}
+  { isDark = false, brightnessVariants = true } = {}
 ): Record<string, number> {
-  const { isDark = false, brightnessVariants = true } = options
-  const colorTokens: Record<string, number> = {}
   const baseColorName = colorGroup.color.name
 
-  const themeColors = isDark ? colorGroup.dark : colorGroup.light
-  for (const [colorKey, colorValue] of Object.entries(themeColors)) {
-    const tokenName = formatCustomColorName(colorKey, baseColorName)
-    colorTokens[tokenName] = colorValue
-  }
+  // Build tokens from the main theme using reduce
+  const tokens = Object.entries(isDark ? colorGroup.dark : colorGroup.light).reduce(
+    (acc, [key, value]) => {
+      acc[formatCustomColorName(key, baseColorName)] = value
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
+  // If brightness variants are enabled, add tokens for both variants
   if (brightnessVariants) {
-    const BRIGHTNESS_VARIANT_SUFFIXES = ['_light', '_dark'] as const
-    for (const suffix of BRIGHTNESS_VARIANT_SUFFIXES) {
-      const variantType = suffix.slice(1) as 'light' | 'dark'
-      const variantColors = colorGroup[variantType]
-
-      for (const [colorKey, colorValue] of Object.entries(variantColors)) {
-        const tokenName = formatCustomColorName(colorKey, baseColorName, { suffix })
-        colorTokens[tokenName] = colorValue
-      }
-    }
+    (['light', 'dark'] as const).forEach(variant => {
+      Object.entries(colorGroup[variant]).forEach(([key, value]) => {
+        tokens[formatCustomColorName(key, baseColorName, { suffix: `_${variant}` })] = value
+      })
+    })
   }
 
-  return colorTokens
+  return tokens
 }
+

@@ -36,8 +36,13 @@ export type DynamicSchemeOptions =
   | PrimaryDynamicSchemeOptions
   | SeedColorDynamicSchemeOptions
 
+export interface MaterialThemeConfig {
+  stateId?: string
+}
+
 export type MaterialThemeOptions = DynamicSchemeOptions & {
   extendedColors?: ExtendedColor[]
+  config?: MaterialThemeConfig
 }
 
 export type MaterialThemeRuntimeOptions = Required<MaterialThemeOptions>
@@ -59,4 +64,16 @@ export interface MaterialTheme {
     error: TonalPalette
   }
   customColors: CustomColorGroup[]
+}
+
+interface DynamicThemeState {
+  seedColor: number
+  isDark: boolean
+  contrastLevel: number
+  style: string
+  primary: number
+  secondary: number
+  tertiary: number
+  neutral: number
+  neutralVariant: number
 }

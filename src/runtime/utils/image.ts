@@ -40,8 +40,7 @@ export async function fetchImageBitmap(
 ): Promise<ImageBitmap> {
 
   if (import.meta.server) {
-    console.warn('fetchImageBitmap is only supported in the browser')
-    // throw new Error('fetchImageBitmap is only supported in the browser')
+    console.warn('fetchImageBitmap is only supported in the browser.')
   }
 
   if (!/^https?:|^data:/.test(url)) {

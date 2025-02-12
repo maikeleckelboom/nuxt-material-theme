@@ -26,11 +26,4 @@ export default defineNuxtPlugin(({ $config }) => {
       }
     ]
   })
-
-  return {
-    provide: {
-      theme,
-      brightnessVariants
-    }
-  }
 })

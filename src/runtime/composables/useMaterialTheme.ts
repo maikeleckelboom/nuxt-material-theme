@@ -6,6 +6,7 @@ import { watchIgnorable } from '@vueuse/core'
 import type { QuantizeOptions } from '../workers/quantize/types'
 import { quantizeImage } from '../utils/quantize'
 import type { DynamicScheme } from '@material/material-color-utilities'
+import { useState } from '#app'
 
 export async function extractSeedFromImage(
   source: ImageBitmap,
@@ -17,10 +18,10 @@ export async function extractSeedFromImage(
 }
 
 export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptions: {
-  brightnessVariants?: MaybeRefOrGetter<boolean>
+  brightnessVariants?: MaybeRefOrGetter<boolean>,
+  isPrimaryDrivenBySeed?: MaybeRefOrGetter<boolean>
 } = {}) {
-  const theme = shallowRef<MaterialTheme>(createMaterialTheme(options))
-  const isPrimaryDrivenBySeed = shallowRef<boolean>(false)
+  const theme = useState<MaterialTheme>(options.config?.stateId || 'theme', () => createMaterialTheme(options))
 
   const dynamicScheme = computed(() => theme.value.schemes[options.isDark ? 'dark' : 'light'])
 
@@ -52,7 +53,7 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
   })
 
   function updateOptions(scheme: DynamicScheme) {
-    options.primary = isPrimaryDrivenBySeed.value
+    options.primary = toValue(colorSchemeOptions.isPrimaryDrivenBySeed)
       ? scheme.sourceColorArgb
       : scheme.primaryPaletteKeyColor
     options.secondary = scheme.secondaryPaletteKeyColor
@@ -67,13 +68,24 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     ignoreUpdates(() => updateOptions(dynamicScheme.value))
   })
 
-  async function applyImage(imageBitmap: ImageBitmap) {
+  async function applyImage(imageBitmap: ImageBitmap | string) {
+    if (typeof imageBitmap === 'string') {
+      imageBitmap = await createImageBitmap(new Blob([await (await fetch(imageBitmap)).blob()]))
+    }
     const seedColor = await extractSeedFromImage(imageBitmap)
     applySeedColor(seedColor)
     ignoreUpdates(() => {
       options.seedColor = seedColor
       updateOptions(dynamicScheme.value)
     })
+  }
+
+  async function apply(input: number | string | ImageBitmap) {
+    if (typeof input === 'number') {
+      applySeedColor(input)
+    } else {
+      await applyImage(input)
+    }
   }
 
   const colorScheme = computed(() => colorSchemeFromTheme(theme.value, {
@@ -85,9 +97,8 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     theme,
     dynamicScheme,
     colorScheme,
-    isPrimaryDrivenBySeed,
     ignoreUpdates,
     applySeedColor,
-    applyImage
+    apply
   }
 }
