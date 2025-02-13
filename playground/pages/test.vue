@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useDynamicMaterialState } from '../../src/runtime/composables/useDynamicMaterialState'
 import { fixIfDisliked, isDisliked } from '../../src/runtime/utils/dislike'
-import { PALETTE_STYLES } from '#imports'
+import { PALETTE_STYLES, reactive } from '#imports'
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 
-const theme = useDynamicMaterialState({
+const theme = reactive(useDynamicMaterialState({
   initialSeedColor: argbFromHex('#fff56d'),
   initialIsDark: false,
   initialIsAmoled: false,
@@ -18,7 +18,16 @@ const theme = useDynamicMaterialState({
       ? scheme.primary
       : scheme.surfaceTint
   })
-})
+}))
+
+watch(() => theme.colorScheme, (colorScheme) => {
+  console.log(colorScheme)
+  theme.primary = colorScheme.primaryPaletteKeyColor
+  theme.secondary = colorScheme.secondaryPaletteKeyColor
+  theme.tertiary = colorScheme.tertiaryPaletteKeyColor
+  theme.neutral = colorScheme.neutralPaletteKeyColor
+  theme.neutralVariant = colorScheme.neutralVariantPaletteKeyColor
+}, { deep: true })
 </script>
 
 <template>
@@ -26,40 +35,56 @@ const theme = useDynamicMaterialState({
     <form class="flex flex-col gap-2">
       <div class="flex items-center">
         <label for="seed-color">Seed Color</label>
-        <input id="seed-color" :value="hexFromArgb(theme.dynamicScheme.sourceColorArgb)" type="color"
-               @input="theme.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
-        />
+        <input id="seed-color" :value="hexFromArgb(theme.seedColor || 0)" type="color"
+               @input="($event)=>{
+                theme.primary = 0
+                theme.secondary = 0
+                theme.tertiary = 0
+                theme.neutral = 0
+                theme.neutralVariant = 0
+                theme.seedColor = argbFromHex(($event.target as HTMLInputElement).value);
+               }"
+        >
+        <button type="button" @click="theme.seedColor = 0">Reset</button>
       </div>
       <div class="flex items-center">
         <label for="primary-color">Primary Color</label>
         <input id="primary-color" :value="hexFromArgb(theme.primary || 0)" type="color"
-               @input="theme.primary = argbFromHex(($event.target as HTMLInputElement).value)"
-        />
+               @input="($event)=>{
+                 theme.primary = theme.seedColor = argbFromHex(($event.target as HTMLInputElement).value);
+               }"
+        >
+        <button type="button" @click="theme.primary = 0">Reset</button>
       </div>
       <div class="flex items-center">
         <label for="secondary-color">Secondary Color</label>
-        <input id="secondary-color" :value="hexFromArgb(theme.dynamicScheme.secondaryPaletteKeyColor)" type="color"
+        <input id="secondary-color" :value="hexFromArgb(theme.secondary || 0)" type="color"
                @input="theme.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
         />
+        <button type="button" @click="theme.secondary = 0">Reset</button>
       </div>
       <div class="flex items-center">
         <label for="tertiary-color">Tertiary Color</label>
-        <input id="tertiary-color" :value="hexFromArgb(theme.dynamicScheme.tertiaryPaletteKeyColor)" type="color"
+        <input id="tertiary-color" :value="hexFromArgb(theme.tertiary || 0)" type="color"
                @input="theme.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
         />
+        <button type="button" @click="theme.tertiary = 0">Reset</button>
       </div>
       <div class="flex items-center">
         <label for="neutral-color">Neutral Color</label>
-        <input id="neutral-color" :value="hexFromArgb(theme.dynamicScheme.neutralPaletteKeyColor)" type="color"
+        <input id="neutral-color" :value="hexFromArgb(theme.neutral || 0)" type="color"
                @input="theme.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
         />
+        <button type="button" @click="theme.neutral = 0">Reset</button>
+
       </div>
       <div class="flex items-center">
         <label for="neutral-variant-color">Neutral Variant Color</label>
-        <input id="neutral-variant-color" :value="hexFromArgb(theme.dynamicScheme.neutralVariantPaletteKeyColor)"
+        <input id="neutral-variant-color" :value="hexFromArgb(theme.neutralVariant || 0)"
                type="color"
                @input="theme.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)"
         />
+        <button type="button" @click="theme.neutralVariant = 0">Reset</button>
       </div>
       <div class="flex items-center">
         <label for="style">Style</label>

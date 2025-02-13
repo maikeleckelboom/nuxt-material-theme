@@ -4,18 +4,10 @@ import { contrastColor } from '../../src/runtime/utils/contrast'
 import { PALETTE_STYLES } from '../../src/runtime/utils/palette-style'
 import { useMaterialTheme } from '#imports'
 
-definePageMeta({
-  title: 'Playground',
-  description: 'Playground for testing Material Theme'
-})
-
-const options = useRuntimeConfig().public.materialTheme
-
-const theme = useMaterialTheme(options)
 
 /**
  * Update primary color when seed color changes
- * (Mimic Material Theme's behavior)
+ * (Mimic Material Theme's behavior) - two-way sync between seed and primary
  */
 function updatePrimaryColor(event: Event) {
   const target = event.target as HTMLInputElement
@@ -30,8 +22,16 @@ function updatePrimaryColor(event: Event) {
   }
 }
 
-const baseUrl = 'http://localhost:3000' as const
+definePageMeta({
+  title: 'Playground',
+  description: 'Playground for testing Material Theme'
+})
 
+const options = useRuntimeConfig().public.materialTheme
+
+const theme = useMaterialTheme(options)
+
+const baseUrl = 'http://localhost:3000'
 const images = [
   `${baseUrl}/img/wallpaper1.jpg`,
   `${baseUrl}/img/wallpaper2.jpg`,
@@ -39,146 +39,154 @@ const images = [
   `${baseUrl}/img/wallpaper4.jpg`
 ]
 
-const loadingIndex = ref<number | undefined>()
+const loadingIndex = shallowRef<number | undefined>()
 
-async function apply(image: string) {
+async function apply(url: string, index: number) {
   if (loadingIndex.value !== undefined) return
-  loadingIndex.value = images.indexOf(image)
-  await theme.apply(image)
+  loadingIndex.value = index
+  await theme.apply(url)
   loadingIndex.value = undefined
 }
+
+const foregroundHexCode = hexFromArgb(theme.colorScheme.value.primaryFixed).slice(0)
+console.log(foregroundHexCode)
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-4">
-    <div class="grid grid-cols-2 gap-2">
-      <form class="color-form">
-        <label>
-          <span>Seed Color</span>
-          <input
-            :value="hexFromArgb(options.seedColor)"
-            aria-label="Seed Color"
-            type="color"
-            @input="options.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Primary - (direct)</span>
-          <input
-            :value="hexFromArgb(options.primary)"
-            aria-label="Primary Color"
-            type="color"
-            @input="options.primary = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Secondary</span>
-          <input
-            :value="hexFromArgb(options.secondary)"
-            aria-label="Secondary Color"
-            type="color"
-            @input="options.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Tertiary</span>
-          <input
-            :value="hexFromArgb(options.tertiary)"
-            aria-label="Tertiary Color"
-            type="color"
-            @input="options.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Neutral</span>
-          <input
-            :value="hexFromArgb(options.neutral)"
-            aria-label="Neutral Color"
-            type="color"
-            @input="options.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Neutral Variant</span>
-          <input
-            :value="hexFromArgb(options.neutralVariant)"
-            aria-label="Neutral Variant Color"
-            type="color"
-            @input="
+  <div class="grid grid-cols-[auto_1fr] p-4 gap-4">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="flex flex-col gap-2">
+        <form class="flex flex-wrap gap-4">
+          <label>
+            <span>Seed Color</span>
+            <input
+              :value="hexFromArgb(options.seedColor)"
+              aria-label="Seed Color"
+              type="color"
+              @input="options.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Primary</span>
+            <input
+              :value="hexFromArgb(options.primary)"
+              aria-label="Primary Color"
+              type="color"
+              @input="options.primary = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Secondary</span>
+            <input
+              :value="hexFromArgb(options.secondary)"
+              aria-label="Secondary Color"
+              type="color"
+              @input="options.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Tertiary</span>
+            <input
+              :value="hexFromArgb(options.tertiary)"
+              aria-label="Tertiary Color"
+              type="color"
+              @input="options.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Neutral</span>
+            <input
+              :value="hexFromArgb(options.neutral)"
+              aria-label="Neutral Color"
+              type="color"
+              @input="options.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Neutral Variant</span>
+            <input
+              :value="hexFromArgb(options.neutralVariant)"
+              aria-label="Neutral Variant Color"
+              type="color"
+              @input="
             options.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)
           "
-          />
-        </label>
-        <label v-for="(extendedColor, i) in options.extendedColors" :key="i">
-          <input :value="extendedColor.name" type="text"
-                 @input="extendedColor.name = ($event.target as HTMLInputElement).value" />
-          <input
-            :value="hexFromArgb(extendedColor.value)"
-            aria-label="Extended Color"
-            type="color"
-            @input="extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          <span>Brightness Variants</span>
-          <input v-model="options.config.brightnessVariants" type="checkbox" />
-        </label>
+            />
+          </label>
+          <label v-for="(extendedColor, i) in options.extendedColors" :key="i">
+            <input :value="extendedColor.name" type="text"
+                   @input="extendedColor.name = ($event.target as HTMLInputElement).value" />
+            <input
+              :value="hexFromArgb(extendedColor.value)"
+              aria-label="Extended Color"
+              type="color"
+              @input="extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <label>
+            <span>Brightness Variants</span>
+            <input v-model="options.config.brightnessVariants" type="checkbox" />
+          </label>
 
-        <label>
-          <span>Is Dark</span>
-          <input v-model="options.isDark" type="checkbox" />
-        </label>
-        <label>
-          <span>Style</span>
-          <select v-model="options.style">
-            <option v-for="style in PALETTE_STYLES" :key="style" :value="style">
-              {{ style }}
-            </option>
-          </select>
-        </label>
-        <label>
-          <span>Contrast Level</span>
-          <input
-            v-model.number="options.contrastLevel"
-            max="1"
-            min="-1"
-            step="0.1"
-            type="range"
-          />
-        </label>
-        <label>
-          <span>Primary Driven By Seed</span>
-          <input v-model="options.config.primaryDrivenBySeed" type="checkbox" />
-        </label>
-      </form>
-      <div class="app-bar">
+          <label>
+            <span>Is Dark</span>
+            <input v-model="options.isDark" type="checkbox" />
+          </label>
+          <label>
+            <span>Style</span>
+            <select v-model="options.style">
+              <option v-for="style in PALETTE_STYLES" :key="style" :value="style">
+                {{ style }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>Contrast Level</span>
+            <input
+              v-model.number="options.contrastLevel"
+              max="1"
+              min="-1"
+              step="0.1"
+              type="range"
+            />
+          </label>
+          <label>
+            <span>Primary Driven By Seed</span>
+            <input v-model="options.config.primaryDrivenBySeed" type="checkbox" />
+          </label>
+        </form>
+      </div>
+      <div class="flex flex-col gap-2">
         <button
-          v-for="(image, index) in images"
+          v-for="(url, index) in images"
           :key="index"
           :data-loading="loadingIndex === index ? 'true' : undefined"
-          class="data-loading:opacity-50 data-loading:animate-spin"
-          @click="apply(image)">
-          <img :src="image" alt="Cloudtion Example" />
+          class="relative
+          data-loading:opacity-50
+          data-loading:after:absolute
+          after:top-1/2
+          after:left-1/2
+          after:-translate-x-1/2
+          after:-translate-y-1/2
+          after:size-24
+          after:bg-[url('https://api.iconify.design/codex:loader.svg?color=%23ffffff')]
+          after:bg-no-repeat
+          after:bg-center
+          after:bg-contain"
+          @click="apply(url, index)">
+          <img :src="url" alt="" />
         </button>
       </div>
       <pre>{{ theme.colorScheme }}</pre>
     </div>
-    <div
-      :style="{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(8, minmax(1rem, 1fr))',
-        gap: '0.5rem'
-      }"
-      class="overflow-hidden "
-    >
+    <div class="overflow-hidden grid gap-2 grid-cols-8">
       <div
         v-for="(value, key, index) in theme.colorScheme.value"
         :key="index"
         :style="{
           backgroundColor: hexFromArgb(value),
           color: hexFromArgb(contrastColor(value))
-        }"
-      >
+        }">
         <span>{{ key }}</span>
       </div>
     </div>
@@ -202,122 +210,21 @@ body {
   font-family: 'Roboto', sans-serif;
   background-color: var(--background);
   color: var(--on-background);
-}
-
-.color-preview-box {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 4px;
-  display: block;
-}
-
-.wallpaper-item {
-  cursor: pointer;
 
 }
 
-.wallpapers-container {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  gap: 0.5rem;
-  align-items: center;
-
-  img {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    object-fit: cover;
-    border-radius: 4px;
-
-    &.selected {
-      border: 3px solid #00bbff;
-
-    }
-
-    &.active {
-      border: 3px solid #0bdc0b;
-    }
-  }
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 1.5rem;
-  max-height: max-content;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
-
-  div {
-    padding: 0.1rem;
-  }
-}
-
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  > div {
-    display: flex;
-  }
-}
-
-.flex {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
-.color-form {
-  display: flex;
-  flex-direction: column;
-
-  input {
-    &[type='color'] {
-      width: 100%;
-      height: clamp(2rem, 3vw, 3rem);
-      cursor: pointer;
-      border: none;
-
-      &::-webkit-color-swatch-wrapper {
-        padding: 0;
-      }
-
-      &::-webkit-color-swatch {
-        border: none;
-      }
-    }
-  }
-}
-
-.color-form input {
+input[type='color'] {
   width: 100%;
+  height: clamp(2rem, 3vw, 3rem);
   cursor: pointer;
-}
+  border: none;
 
-.color-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1.1em;
-  border-radius: 4px;
-  overflow: hidden;
-  height: fit-content;
-}
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
 
-.color-table th,
-.color-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.color-table th {
-  background-color: #f5f5f5;
+  &::-webkit-color-swatch {
+    border: none;
+  }
 }
 </style>
