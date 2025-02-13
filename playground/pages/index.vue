@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 import { contrastColor } from '../../src/runtime/utils/contrast'
-import { getPaletteStyles } from '../../src/runtime/utils/palette-style'
+import { PALETTE_STYLES } from '../../src/runtime/utils/palette-style'
 import { useMaterialTheme } from '#imports'
 
 definePageMeta({
@@ -11,14 +11,16 @@ definePageMeta({
 
 const options = useRuntimeConfig().public.materialTheme
 
-const brightnessVariants = shallowRef<boolean>(false)
-const isPrimaryDrivenBySeed =  shallowRef<boolean>(false)
-const theme = useMaterialTheme(options, { brightnessVariants, isPrimaryDrivenBySeed })
+const theme = useMaterialTheme(options)
 
+/**
+ * Update primary color when seed color changes
+ * (Mimic Material Theme's behavior)
+ */
 function updatePrimaryColor(event: Event) {
   const target = event.target as HTMLInputElement
   const value = argbFromHex(target.value)
-  if (isPrimaryDrivenBySeed.value) {
+  if (options.config.primaryDrivenBySeed) {
     theme.ignoreUpdates(() => {
       options.seedColor = value
       options.primary = value
@@ -28,104 +30,146 @@ function updatePrimaryColor(event: Event) {
   }
 }
 
-const paletteStyles = getPaletteStyles()
+const baseUrl = 'http://localhost:3000' as const
 
-onMounted(() => {
-  theme.apply('https://i.ibb.co/GRzh5nV/Cloudtion-Example.jpg')
-})
+const images = [
+  `${baseUrl}/img/wallpaper1.jpg`,
+  `${baseUrl}/img/wallpaper2.jpg`,
+  `${baseUrl}/img/wallpaper3.jpg`,
+  `${baseUrl}/img/wallpaper4.jpg`
+]
+
+const loadingIndex = ref<number | undefined>()
+
+async function apply(image: string) {
+  if (loadingIndex.value !== undefined) return
+  loadingIndex.value = images.indexOf(image)
+  await theme.apply(image)
+  loadingIndex.value = undefined
+}
 </script>
 
 <template>
-  <div class="main-grid">
-    <form class="color-form">
-      <input
-        :value="hexFromArgb(options.seedColor)"
-        aria-label="Seed Color"
-        type="color"
-        @input="options.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
-      />
-      <input
-        :value="hexFromArgb(options.primary)"
-        aria-label="config.primary Color"
-        type="color"
-        @input="updatePrimaryColor"
-      />
-      <input
-        :value="hexFromArgb(options.secondary)"
-        aria-label="Secondary Color"
-        type="color"
-        @input="options.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
-      />
-      <input
-        :value="hexFromArgb(options.tertiary)"
-        aria-label="Tertiary Color"
-        type="color"
-        @input="options.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
-      />
-      <input
-        :value="hexFromArgb(options.neutral)"
-        aria-label="Neutral Color"
-        type="color"
-        @input="options.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
-      />
-      <input
-        :value="hexFromArgb(options.neutralVariant)"
-        aria-label="Neutral Variant Color"
-        type="color"
-        @input="
+  <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-2">
+      <form class="color-form">
+        <label>
+          <span>Seed Color</span>
+          <input
+            :value="hexFromArgb(options.seedColor)"
+            aria-label="Seed Color"
+            type="color"
+            @input="options.seedColor = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Primary - (direct)</span>
+          <input
+            :value="hexFromArgb(options.primary)"
+            aria-label="Primary Color"
+            type="color"
+            @input="options.primary = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Secondary</span>
+          <input
+            :value="hexFromArgb(options.secondary)"
+            aria-label="Secondary Color"
+            type="color"
+            @input="options.secondary = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Tertiary</span>
+          <input
+            :value="hexFromArgb(options.tertiary)"
+            aria-label="Tertiary Color"
+            type="color"
+            @input="options.tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Neutral</span>
+          <input
+            :value="hexFromArgb(options.neutral)"
+            aria-label="Neutral Color"
+            type="color"
+            @input="options.neutral = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Neutral Variant</span>
+          <input
+            :value="hexFromArgb(options.neutralVariant)"
+            aria-label="Neutral Variant Color"
+            type="color"
+            @input="
             options.neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)
           "
-      />
-      <label v-for="(extendedColor, i) in options.extendedColors" :key="i">
-        <input :value="extendedColor.name" type="text"
-               @input="extendedColor.name = ($event.target as HTMLInputElement).value" />
-        <input
-          :value="hexFromArgb(extendedColor.value)"
-          aria-label="Extended Color"
-          type="color"
-          @input="extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)"
-        />
-      </label>
-      <label>
-        <span>Brightness Variants</span>
-        <input v-model="brightnessVariants" type="checkbox" />
-      </label>
+          />
+        </label>
+        <label v-for="(extendedColor, i) in options.extendedColors" :key="i">
+          <input :value="extendedColor.name" type="text"
+                 @input="extendedColor.name = ($event.target as HTMLInputElement).value" />
+          <input
+            :value="hexFromArgb(extendedColor.value)"
+            aria-label="Extended Color"
+            type="color"
+            @input="extendedColor.value = argbFromHex(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
+          <span>Brightness Variants</span>
+          <input v-model="options.config.brightnessVariants" type="checkbox" />
+        </label>
 
-      <label>
-        <span>Is Dark</span>
-        <input v-model="options.isDark" type="checkbox" />
-      </label>
-      <label>
-        <span>Style</span>
-        <select v-model="options.style">
-          <option v-for="style in paletteStyles" :key="style" :value="style">
-            {{ style }}
-          </option>
-        </select>
-      </label>
-      <label>
-        <span>Contrast Level</span>
-        <input
-          v-model.number="options.contrastLevel"
-          max="1"
-          min="-1"
-          step="0.1"
-          type="range"
-        />
-      </label>
-      <label>
-        <span>Primary Driven By Seed</span>
-        <input v-model="isPrimaryDrivenBySeed" type="checkbox" />
-      </label>
-    </form>
-    <pre>{{ theme.colorScheme }}</pre>
-
+        <label>
+          <span>Is Dark</span>
+          <input v-model="options.isDark" type="checkbox" />
+        </label>
+        <label>
+          <span>Style</span>
+          <select v-model="options.style">
+            <option v-for="style in PALETTE_STYLES" :key="style" :value="style">
+              {{ style }}
+            </option>
+          </select>
+        </label>
+        <label>
+          <span>Contrast Level</span>
+          <input
+            v-model.number="options.contrastLevel"
+            max="1"
+            min="-1"
+            step="0.1"
+            type="range"
+          />
+        </label>
+        <label>
+          <span>Primary Driven By Seed</span>
+          <input v-model="options.config.primaryDrivenBySeed" type="checkbox" />
+        </label>
+      </form>
+      <div class="app-bar">
+        <button
+          v-for="(image, index) in images"
+          :key="index"
+          :data-loading="loadingIndex === index ? 'true' : undefined"
+          class="data-loading:opacity-50 data-loading:animate-spin"
+          @click="apply(image)">
+          <img :src="image" alt="Cloudtion Example" />
+        </button>
+      </div>
+      <pre>{{ theme.colorScheme }}</pre>
+    </div>
     <div
       :style="{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(2rem, 1fr))',
+        gridTemplateColumns: 'repeat(8, minmax(1rem, 1fr))',
         gap: '0.5rem'
       }"
+      class="overflow-hidden "
     >
       <div
         v-for="(value, key, index) in theme.colorScheme.value"

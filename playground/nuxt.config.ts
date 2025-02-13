@@ -1,10 +1,21 @@
 import { argbFromHex } from '@material/material-color-utilities'
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+  vite: {
+    plugins: [
+      /* @ts-ignore */
+      tailwindcss()
+    ]
+  },
+  css: ['./assets/css/tailwind.css'],
   modules: ['../src/module'],
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
+    config:{
+      primaryDrivenBySeed: false
+    },
     seedColor: argbFromHex('#ff8000'),
     extendedColors: [
       {
@@ -17,6 +28,6 @@ export default defineNuxtConfig({
         value: argbFromHex('#ff00ff'),
         blend: true
       }
-    ],
+    ]
   }
 })
