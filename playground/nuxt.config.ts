@@ -13,9 +13,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-30',
   materialTheme: {
-    config:{
-      primaryDrivenBySeed: false
-    },
     seedColor: argbFromHex('#ff8000'),
     extendedColors: [
       {

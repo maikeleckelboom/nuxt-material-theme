@@ -1,4 +1,7 @@
 import { argbFromRgb } from '@material/material-color-utilities'
+import type { QuantizeOptions } from '../workers/quantize/types'
+import { quantizePixels, quantizeWithWorker } from '../utils/quantize'
+import { score } from '../utils/score'
 
 export async function imageDataFromBitmapSource(
   imageBitmapSource: ImageBitmapSource,
@@ -104,4 +107,25 @@ export function pixelsFromImageData({ data }: ImageData): number[] {
     if (a === 255) pixels.push(argbFromRgb(r!, g!, b!))
   }
   return pixels
+}
+
+export async function extractSeedFromImage(
+  imageBitmapSource: ImageBitmapSource,
+  options: QuantizeOptions = {}
+): Promise<number> {
+  // Start processing image data for the fallback method early
+  const imageDataPromise = imageDataFromBitmapSource(imageBitmapSource)
+  try {
+    // Try to quantize with worker
+    const { rankedSuggestions } = await quantizeWithWorker(<ImageBitmap>imageBitmapSource, options)
+    const [seedColor] = rankedSuggestions
+    return seedColor
+  } catch {
+    // Fallback to main thread quantization
+    const imageData = await imageDataPromise
+    const pixels = pixelsFromImageData(imageData)
+    const colorToCount = quantizePixels(pixels)
+    const [seedColor] = score(colorToCount)
+    return seedColor
+  }
 }

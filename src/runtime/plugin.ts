@@ -1,13 +1,13 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import { hexFromArgb } from '@material/material-color-utilities'
 import { computed, shallowRef } from 'vue'
-import { useMaterialTheme } from './composables/useMaterialTheme'
+import { useReactiveOptionsTheme } from './composables/useReactiveOptionsTheme'
 import { useHead } from '@unhead/vue'
 import { kebabCase } from 'change-case'
 
 export default defineNuxtPlugin(({ $config }) => {
   const options = $config.public.materialTheme
-  const theme = useMaterialTheme(options)
+  const theme = useReactiveOptionsTheme(options)
 
   function cssVariablesFromColorScheme(colorScheme: Record<string, number>) {
     return Object.entries(colorScheme).reduce((acc, [key, value]) => {

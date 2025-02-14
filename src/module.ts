@@ -45,7 +45,7 @@ export default defineNuxtModule<MaterialThemeOptions>({
     isDark: false,
     config: {
       stateId: 'theme',
-      brightnessVariants: true,
+      brightnessVariants: false,
       primaryDrivenBySeed: false
     }
   },

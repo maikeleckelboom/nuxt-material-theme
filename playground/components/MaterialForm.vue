@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
 import { PALETTE_STYLES } from '../../src/runtime/utils/palette-style'
 
@@ -13,7 +12,6 @@ const style = defineModel<PaletteStyle>('style')
 const contrastLevel = defineModel<number>('contrastLevel')
 const isDark = defineModel<boolean>('isDark')
 const isAmoled = defineModel<boolean>('isAmoled')
-
 </script>
 
 <template>
@@ -28,9 +26,8 @@ const isAmoled = defineModel<boolean>('isAmoled')
                 neutral = 0
                 neutralVariant = 0
                 seedColor = argbFromHex(($event.target as HTMLInputElement).value);
-               }"
+             }"
       >
-      <button type="button" @click="seedColor = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="primary-color">Primary Color</label>
@@ -39,28 +36,24 @@ const isAmoled = defineModel<boolean>('isAmoled')
                  primary = seedColor = argbFromHex(($event.target as HTMLInputElement).value);
                }"
       >
-      <button type="button" @click="primary = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="secondary-color">Secondary Color</label>
       <input id="secondary-color" :value="hexFromArgb(secondary || 0)" type="color"
              @input="secondary = argbFromHex(($event.target as HTMLInputElement).value)"
       />
-      <button type="button" @click="secondary = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="tertiary-color">Tertiary Color</label>
       <input id="tertiary-color" :value="hexFromArgb(tertiary || 0)" type="color"
              @input="tertiary = argbFromHex(($event.target as HTMLInputElement).value)"
       />
-      <button type="button" @click="tertiary = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="neutral-color">Neutral Color</label>
       <input id="neutral-color" :value="hexFromArgb(neutral || 0)" type="color"
              @input="neutral = argbFromHex(($event.target as HTMLInputElement).value)"
       />
-      <button type="button" @click="neutral = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="neutral-variant-color">Neutral Variant Color</label>
@@ -68,7 +61,6 @@ const isAmoled = defineModel<boolean>('isAmoled')
              type="color"
              @input="neutralVariant = argbFromHex(($event.target as HTMLInputElement).value)"
       />
-      <button type="button" @click="neutralVariant = 0">Reset</button>
     </div>
     <div class="flex items-center">
       <label for="style">Style</label>

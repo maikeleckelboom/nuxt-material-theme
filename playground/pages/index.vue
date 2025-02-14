@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities'
-import { contrastColor } from '../../src/runtime/utils/contrast'
 import { PALETTE_STYLES } from '../../src/runtime/utils/palette-style'
-import { useMaterialTheme } from '#imports'
-
+import { useReactiveOptionsTheme } from '#imports'
+import Wallpapers from '~/components/Wallpapers.vue'
 
 /**
  * Update primary color when seed color changes
@@ -29,7 +28,7 @@ definePageMeta({
 
 const options = useRuntimeConfig().public.materialTheme
 
-const theme = useMaterialTheme(options)
+const theme = useReactiveOptionsTheme(options)
 
 const baseUrl = 'http://localhost:3000'
 const images = [
@@ -47,10 +46,18 @@ async function apply(url: string, index: number) {
   await theme.apply(url)
   loadingIndex.value = undefined
 }
+
+const showSharedState = ref<boolean>(false)
+
 </script>
 
 <template>
   <NuxtLink to="/test">Test</NuxtLink>
+  <div class="flex flex-col gap-2">
+    <!-- -->
+    <button @click="showSharedState = !showSharedState">Toggle Shared State</button>
+    <TestSharedState v-if="showSharedState" />
+  </div>
   <div class="grid grid-cols-[auto_1fr] p-4 gap-4">
     <div class="grid grid-cols-3 gap-4">
       <div class="flex flex-col gap-2">
@@ -155,38 +162,12 @@ async function apply(url: string, index: number) {
         </form>
       </div>
       <div class="flex flex-col gap-2">
-        <button
-          v-for="(url, index) in images"
-          :key="index"
-          :data-loading="loadingIndex === index ? 'true' : undefined"
-          class="relative
-          data-loading:opacity-50
-          data-loading:after:absolute
-          after:top-1/2
-          after:left-1/2
-          after:-translate-x-1/2
-          after:-translate-y-1/2
-          after:size-24
-          after:bg-[url('https://api.iconify.design/codex:loader.svg?color=%23ffffff')]
-          after:bg-no-repeat
-          after:bg-center
-          after:bg-contain"
-          @click="apply(url, index)">
-          <img :src="url" alt="" />
-        </button>
+        <Wallpapers :images="images" :loadingIndex="loadingIndex" @apply="apply" />
       </div>
       <pre>{{ theme.colorScheme }}</pre>
     </div>
     <div class="overflow-hidden grid gap-2 grid-cols-8">
-      <div
-        v-for="(value, key, index) in theme.colorScheme.value"
-        :key="index"
-        :style="{
-          backgroundColor: hexFromArgb(value),
-          color: hexFromArgb(contrastColor(value))
-        }">
-        <span>{{ key }}</span>
-      </div>
+      <ColorPreviews :colors="theme.colorScheme.value" />
     </div>
   </div>
 </template>

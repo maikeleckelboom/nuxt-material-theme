@@ -44,8 +44,6 @@ export interface UseMaterialThemeStateReturn {
 }
 
 export function useMaterialThemeState(params?: MaterialThemeStateParams): UseMaterialThemeStateReturn {
-  // Generate a unique ID internally
-  const id = useId()
   const actualParams = params ?? {}
 
   // State initialization
@@ -61,7 +59,7 @@ export function useMaterialThemeState(params?: MaterialThemeStateParams): UseMat
   const neutralVariant = shallowRef(actualParams.initialNeutralVariant)
 
   const dynamicScheme = shallowRef<DynamicScheme>(createDynamicScheme({
-    seedColor: Number(seedColor.value || primary.value),
+    seedColor: seedColor.value,
     primary: primary.value,
     secondary: secondary.value,
     tertiary: tertiary.value,
@@ -77,7 +75,8 @@ export function useMaterialThemeState(params?: MaterialThemeStateParams): UseMat
     console.log('Recomputing color scheme')
 
     const scheme = createDynamicScheme({
-      primary: Number(primary.value || seedColor.value),
+      seedColor: seedColor.value,
+      primary: primary.value,
       secondary: secondary.value,
       tertiary: tertiary.value,
       neutral: neutral.value,
