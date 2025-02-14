@@ -47,12 +47,10 @@ async function apply(url: string, index: number) {
   await theme.apply(url)
   loadingIndex.value = undefined
 }
-
-const foregroundHexCode = hexFromArgb(theme.colorScheme.value.primaryFixed).slice(0)
-console.log(foregroundHexCode)
 </script>
 
 <template>
+  <NuxtLink to="/test">Test</NuxtLink>
   <div class="grid grid-cols-[auto_1fr] p-4 gap-4">
     <div class="grid grid-cols-3 gap-4">
       <div class="flex flex-col gap-2">

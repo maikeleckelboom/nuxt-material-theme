@@ -11,7 +11,7 @@ export function formatCustomColorName(
     // Insert underscores before uppercase letters
     .replace(/([A-Z])/g, '_$1')
     .toLowerCase()
-    // Replace 'color' with customColorName in camelCase
+    // Replace 'color' with customColorName
     .replace(/color/g, camelCase(customColorName))
 
   return camelCase(formattedName + suffix)

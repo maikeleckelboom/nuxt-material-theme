@@ -24,15 +24,43 @@ export async function imageDataFromBitmapSource(
   return context.getImageData(0, 0, image.width, image.height)
 }
 
-export function pixelsFromImageData({ data }: ImageData): number[] {
-  const pixels: number[] = []
-  const len = data.length
-  for (let i = 0; i < len; i += 4) {
-    const [r, g, b, a] = data.slice(i, i + 4)
-    if (a === 255) pixels.push(argbFromRgb(r!, g!, b!))
+export function imageBitmapFromSource(
+  source: ImageBitmapSource
+): Promise<ImageBitmap> {
+  // Direct return for already valid ImageBitmaps
+  if (source instanceof ImageBitmap) {
+    return Promise.resolve(source)
   }
-  return pixels
+
+  // Handle complex SVG elements (non-SVGImageElement)
+  if (source instanceof SVGElement && !(source instanceof SVGImageElement)) {
+    const svgString = new XMLSerializer().serializeToString(source)
+    const blob = new Blob([svgString], { type: 'image/svg+xml' })
+    return createImageBitmap(blob)
+  }
+
+  // Ensure HTMLImageElement is fully loaded
+  if (source instanceof HTMLImageElement) {
+    if (!source.complete || source.naturalWidth === 0) {
+      return new Promise((resolve, reject) => {
+        source.onload = () => {
+          if (source.naturalWidth > 0) {
+            createImageBitmap(source).then(resolve).catch(reject)
+          } else {
+            reject(new Error('Image failed to load with valid dimensions.'))
+          }
+        }
+        source.onerror = () => {
+          reject(new Error('Image failed to load.'))
+        }
+      })
+    }
+  }
+
+  // Leverage browser's native handling for all other valid sources
+  return createImageBitmap(source)
 }
+
 
 export async function fetchImageBitmap(
   url: string,
@@ -43,7 +71,7 @@ export async function fetchImageBitmap(
     console.warn('fetchImageBitmap is only supported in the browser.')
   }
 
-  if (!/^https?:|^data:/.test(url)) {
+  if (!/^http?:|^data:/.test(url)) {
     throw new Error('Only http(s) and data URLs are supported')
   }
 
@@ -68,4 +96,12 @@ export async function fetchImageBitmap(
     : imageBitmapPromise
 }
 
-
+export function pixelsFromImageData({ data }: ImageData): number[] {
+  const pixels: number[] = []
+  const len = data.length
+  for (let i = 0; i < len; i += 4) {
+    const [r, g, b, a] = data.slice(i, i + 4)
+    if (a === 255) pixels.push(argbFromRgb(r!, g!, b!))
+  }
+  return pixels
+}

@@ -1,13 +1,15 @@
 import { QuantizerCelebi } from '@material/material-color-utilities'
 import type { QuantizeOptions, QuantizeResult } from '../workers/quantize/types'
 import { createQuantizeWorker } from '../workers/quantize'
-import { isDoneEvent } from '../workers/quantize/utils'
+import { isDoneEvent } from '../workers/quantize/guards'
 
-export function quantize(pixels: number[], maxColors: number = 200): Map<number, number> {
+export function quantizePixels(pixels: number[], maxColors: number = 200): Map<number, number> {
   return QuantizerCelebi.quantize(pixels, maxColors)
 }
 
-export async function quantizeImage(
+// Limitation: Must serialize to a worker since ImageBitmapSource includes non-transferable types
+// such as ImageBitmap, HTMLImageElement, HTMLVideoElement, HTMLCanvasElement, and OffscreenCanvas.
+export async function quantizeWithWorker(
   image: ImageBitmap,
   options: QuantizeOptions = {}
 ): Promise<QuantizeResult> {

@@ -1,5 +1,5 @@
 import { customColor, DynamicColor, DynamicScheme, MaterialDynamicColors } from '@material/material-color-utilities'
-import type { ExtendedColor, MaterialTheme } from '../../types'
+import type { ExtendedColor, MaterialColorScheme, MaterialTheme } from '../../types'
 import { colorSchemeFromCustomColorGroup } from './custom-color-scheme'
 
 export function extractColorsFromDynamicScheme(
@@ -29,22 +29,22 @@ export function extractColorsFromDynamicScheme(
   return colors
 }
 
-export function colorSchemeFromDynamicScheme(
+export function generateColorScheme(
   scheme: DynamicScheme,
   extendedColors: ExtendedColor[],
   options?: { brightnessVariants?: boolean }
-): Record<string, number>;
+): Record<keyof MaterialColorScheme, number>;
 
-export function colorSchemeFromDynamicScheme(
+export function generateColorScheme(
   scheme: DynamicScheme,
   options?: { brightnessVariants?: boolean }
-): Record<string, number>;
+): Record<keyof MaterialColorScheme, number>;
 
-export function colorSchemeFromDynamicScheme(
+export function generateColorScheme(
   scheme: DynamicScheme,
   extendedColorsOrOptions?: ExtendedColor[] | { brightnessVariants?: boolean },
   options?: { brightnessVariants?: boolean }
-): Record<string, number> {
+): Record<keyof MaterialColorScheme, number> {
   let extendedColors: ExtendedColor[] = []
   let opts: { brightnessVariants?: boolean } = {}
 
@@ -87,11 +87,16 @@ export function colorSchemeFromTheme(
     brightnessVariants?: boolean
   } = {}
 ) {
+  if (!theme.schemes) {
+    console.error('No theme provided', theme)
+    return {}
+  }
+
   const { isDark = false, brightnessVariants = false } = options
 
   const dynamicScheme = theme.schemes[isDark ? 'dark' : 'light']
 
-  const colorScheme = colorSchemeFromDynamicScheme(dynamicScheme, { brightnessVariants })
+  const colorScheme = generateColorScheme(dynamicScheme, { brightnessVariants })
 
   const extendedColors = theme.customColors.map((customColorGroup) =>
     colorSchemeFromCustomColorGroup(customColorGroup, { isDark, brightnessVariants })
@@ -102,3 +107,4 @@ export function colorSchemeFromTheme(
     ...extendedColors.reduce((acc, val) => ({ ...acc, ...val }), {})
   }
 }
+

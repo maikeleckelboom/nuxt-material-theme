@@ -1,29 +1,42 @@
-import { computed, type MaybeRefOrGetter, shallowRef, toValue, watch } from 'vue'
+import { useState } from '#app'
+import { computed, toValue, watch } from 'vue'
 import type { MaterialTheme, MaterialThemeOptions } from '../../types'
 import { createMaterialTheme } from '../utils/theme'
 import { colorSchemeFromTheme } from '../utils/color-scheme'
 import { watchIgnorable } from '@vueuse/core'
 import type { QuantizeOptions } from '../workers/quantize/types'
-import { quantizeImage } from '../utils/quantize'
+import { quantizePixels, quantizeWithWorker } from '../utils/quantize'
 import type { DynamicScheme } from '@material/material-color-utilities'
-import { useState } from '#app'
+import { fetchImageBitmap, imageDataFromBitmapSource, pixelsFromImageData } from '../utils/image'
+import { score } from '../utils/score'
+
 
 export async function extractSeedFromImage(
-  source: ImageBitmap,
+  imageBitmapSource: ImageBitmapSource,
   options: QuantizeOptions = {}
 ): Promise<number> {
-  const data = await quantizeImage(source, options)
-  const [seedColor] = data.rankedSuggestions
-  return seedColor
+  // Start processing image data for the fallback method early
+  const imageDataPromise = imageDataFromBitmapSource(imageBitmapSource)
+  try {
+    console.log('Try to quantize with worker')
+    const { rankedSuggestions } = await quantizeWithWorker(<ImageBitmap>imageBitmapSource, options)
+    const [seedColor] = rankedSuggestions
+    return seedColor
+  } catch {
+    // Use the already-started image data processing
+    console.log('Fallback to main thread quantization')
+    const imageData = await imageDataPromise
+    const pixels = pixelsFromImageData(imageData)
+    const colorToCount = quantizePixels(pixels)
+    const [seedColor] = score(colorToCount)
+    return seedColor
+  }
 }
 
-export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptions: {
-  brightnessVariants?: MaybeRefOrGetter<boolean>,
-  isPrimaryDrivenBySeed?: MaybeRefOrGetter<boolean>
-} = {}) {
+export function useMaterialTheme(options: MaterialThemeOptions) {
   const theme = useState<MaterialTheme>(options.config?.stateId || 'theme', () => createMaterialTheme(options))
 
-  const dynamicScheme = computed(() => theme.value.schemes[options.isDark ? 'dark' : 'light'])
+  const dynamicScheme = computed(() => theme.value?.schemes?.[options.isDark ? 'dark' : 'light'])
 
   const { ignoreUpdates } = watchIgnorable(
     () => [
@@ -48,12 +61,8 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     })
   }
 
-  watch(() => options.style, () => {
-    applySeedColor(dynamicScheme.value.sourceColorArgb)
-  })
-
   function updateOptions(scheme: DynamicScheme) {
-    options.primary = toValue(colorSchemeOptions.isPrimaryDrivenBySeed)
+    options.primary = toValue(options.config?.primaryDrivenBySeed)
       ? scheme.sourceColorArgb
       : scheme.primaryPaletteKeyColor
     options.secondary = scheme.secondaryPaletteKeyColor
@@ -68,11 +77,12 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     ignoreUpdates(() => updateOptions(dynamicScheme.value))
   })
 
-  async function applyImage(imageBitmap: ImageBitmap | string) {
-    if (typeof imageBitmap === 'string') {
-      imageBitmap = await createImageBitmap(new Blob([await (await fetch(imageBitmap)).blob()]))
-    }
-    const seedColor = await extractSeedFromImage(imageBitmap)
+  watch(() => options.style, () => {
+    applySeedColor(dynamicScheme.value.sourceColorArgb)
+  })
+
+  async function applyImage(image: ImageBitmap) {
+    const seedColor = await extractSeedFromImage(image)
     applySeedColor(seedColor)
     ignoreUpdates(() => {
       options.seedColor = seedColor
@@ -80,17 +90,29 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     })
   }
 
-  async function apply(input: number | string | ImageBitmap) {
+  async function apply(input?: number | string | ImageBitmapSource | null) {
+    if (input === null || input === undefined) return
+
     if (typeof input === 'number') {
       applySeedColor(input)
-    } else {
-      await applyImage(input)
+      return
     }
+
+    let imageBitmap: ImageBitmap
+    if (typeof input === 'string') {
+      imageBitmap = await fetchImageBitmap(input)
+    } else if (input instanceof ImageBitmap) {
+      imageBitmap = input
+    } else {
+      imageBitmap = await createImageBitmap(input)
+    }
+
+    await applyImage(imageBitmap)
   }
 
   const colorScheme = computed(() => colorSchemeFromTheme(theme.value, {
     isDark: options.isDark,
-    brightnessVariants: toValue(colorSchemeOptions.brightnessVariants)
+    brightnessVariants: toValue(options?.config?.brightnessVariants)
   }))
 
   return {
@@ -98,7 +120,8 @@ export function useMaterialTheme(options: MaterialThemeOptions, colorSchemeOptio
     dynamicScheme,
     colorScheme,
     ignoreUpdates,
-    applySeedColor,
     apply
   }
 }
+
+

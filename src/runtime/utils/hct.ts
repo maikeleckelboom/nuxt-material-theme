@@ -8,10 +8,10 @@ export function fromHct(hct: Hct): number {
   return hct.toInt()
 }
 
-export function toHcts(argbColors: number[]): Hct[] {
+export function toHctArray(argbColors: number[]): Hct[] {
   return argbColors.map(toHct)
 }
 
-export function fromHcts(hcts: Hct[]): number[] {
+export function fromHctArray(hcts: Hct[]): number[] {
   return hcts.map(fromHct)
 }

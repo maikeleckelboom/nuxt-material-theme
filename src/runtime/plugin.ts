@@ -7,10 +7,7 @@ import { kebabCase } from 'change-case'
 
 export default defineNuxtPlugin(({ $config }) => {
   const options = $config.public.materialTheme
-
-  const brightnessVariants = shallowRef<boolean>(false)
-
-  const theme = useMaterialTheme(options, { brightnessVariants })
+  const theme = useMaterialTheme(options)
 
   function cssVariablesFromColorScheme(colorScheme: Record<string, number>) {
     return Object.entries(colorScheme).reduce((acc, [key, value]) => {

@@ -1,5 +1,5 @@
 import { Hct, TemperatureCache } from '@material/material-color-utilities'
-import {toHcts} from "./hct";
+import {toHctArray} from "./hct";
 
 export function isCold(color: number) {
   const hct = Hct.fromInt(color)
@@ -14,7 +14,7 @@ export function isWarm(color: number) {
 }
 
 export function getColdestColor(argbColors: number[]): Hct {
-  const colors = toHcts(argbColors)
+  const colors = toHctArray(argbColors)
   return colors.reduce((coldest, current) => {
     const cache = new TemperatureCache(coldest)
     return cache.relativeTemperature(current) < cache.relativeTemperature(coldest)
@@ -24,7 +24,7 @@ export function getColdestColor(argbColors: number[]): Hct {
 }
 
 export function getWarmestColor(argbColors: number[]): Hct {
-  const colors = toHcts(argbColors)
+  const colors = toHctArray(argbColors)
   return colors.reduce((warmest, current) => {
     const cache = new TemperatureCache(warmest)
     return cache.relativeTemperature(current) > cache.relativeTemperature(warmest)

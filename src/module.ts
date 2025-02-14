@@ -20,7 +20,9 @@ async function initializeRuntimeConfig(options: MaterialThemeOptions, defaultCol
 
   const dynamicScheme = createDynamicScheme(options)
 
-  options.primary ??= dynamicScheme.primaryPaletteKeyColor
+  options.primary ??= options.config?.primaryDrivenBySeed
+    ? dynamicScheme.sourceColorArgb
+    : dynamicScheme.primaryPaletteKeyColor
   options.secondary ??= dynamicScheme.secondaryPaletteKeyColor
   options.tertiary ??= dynamicScheme.tertiaryPaletteKeyColor
   options.neutral ??= dynamicScheme.neutralPaletteKeyColor
@@ -42,7 +44,9 @@ export default defineNuxtModule<MaterialThemeOptions>({
     contrastLevel: 0,
     isDark: false,
     config: {
-      stateId: 'theme'
+      stateId: 'theme',
+      brightnessVariants: true,
+      primaryDrivenBySeed: false
     }
   },
   setup(options, nuxt) {

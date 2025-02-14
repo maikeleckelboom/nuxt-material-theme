@@ -34,10 +34,10 @@ function generateTonalPalette(color: number | undefined, fallback: TonalPalette)
 export function createDynamicScheme(options: DynamicSchemeOptions): DynamicScheme {
   const { contrastLevel = 0, isDark = false } = options
 
-  const baseColorArgb = Number(options.seedColor || options.primary)
+  const sourceColorArgb = Number(options.seedColor || options.primary)
 
-  const Scheme: PaletteScheme = getPaletteScheme(options.style)
-  const scheme = new Scheme(toHct(baseColorArgb), isDark, contrastLevel)
+  const SchemeVariant: PaletteScheme = getPaletteScheme(options.style)
+  const scheme = new SchemeVariant(toHct(sourceColorArgb), isDark, contrastLevel)
 
   if (hasSeedSourceColor(options)) {
     return scheme
@@ -52,9 +52,9 @@ export function createDynamicScheme(options: DynamicSchemeOptions): DynamicSchem
   }
 
   return new DynamicScheme({
-    sourceColorArgb: baseColorArgb,
+    sourceColorArgb,
     isDark,
-    contrastLevel: contrastLevel,
+    contrastLevel,
     variant: mapPaletteStyleToInternalVariant(options.style),
     primaryPalette: generateTonalPalette(options.primary, core.a1),
     secondaryPalette: generateTonalPalette(options.secondary, core.a2),
